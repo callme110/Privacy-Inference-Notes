@@ -1,0 +1,293 @@
+{
+  "main": {
+    "id": "a83af28efbd8d24d",
+    "type": "split",
+    "children": [
+      {
+        "id": "c1f42302983d5aff",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1ce3df6c3885d10e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Transformers Learn Shortcuts to Automata"
+            }
+          },
+          {
+            "id": "ad018481a44f61eb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice"
+            }
+          },
+          {
+            "id": "db5109c1c821bc5d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f9e547455507bcab",
+    "type": "split",
+    "children": [
+      {
+        "id": "a9ef447a4416fb53",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "da8ed26ca25b9c66",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "cdb25c7bc5a3910b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#privacy-computing",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "5a45ee951ef730f9",
+            "type": "leaf",
+            "state": {
+              "type": "tagfolder-view",
+              "state": {},
+              "icon": "stacked-levels",
+              "title": "Tag Folder"
+            }
+          },
+          {
+            "id": "efde9d0225302fc8",
+            "type": "leaf",
+            "state": {
+              "type": "vertical-tabs",
+              "state": {},
+              "icon": "gallery-vertical",
+              "title": "Vertical tabs"
+            }
+          },
+          {
+            "id": "062028ae22fe952f",
+            "type": "leaf",
+            "state": {
+              "type": "tagfolder-view",
+              "state": {},
+              "icon": "stacked-levels",
+              "title": "Tag Folder"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "e59878e1ef791ce1",
+    "type": "split",
+    "children": [
+      {
+        "id": "29078fcce64da82d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "66145a406de8f2f8",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向链接"
+            }
+          },
+          {
+            "id": "1ff77f5ecf710091",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "3f559748d45d0a21",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Papers/HERACLES/HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS 的大纲"
+            }
+          },
+          {
+            "id": "c06bb4d97fbe35d4",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {},
+              "icon": "lucide-ghost",
+              "title": "calendar"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "random-note:开始漫游笔记": false,
+      "workspaces:管理工作区布局": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-git:Open Git source control": false,
+      "obsidian-excalidraw-plugin:Create new drawing": false,
+      "obsidian-kanban:Create new board": false,
+      "periodic-notes:Open today": false
+    }
+  },
+  "active": "db5109c1c821bc5d",
+  "lastOpenFiles": [
+    "Papers/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice.md",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-16-17-18-probing-appendix.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-15-llm-extended-thinking-failure.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/table-05-probe-ngram-similarity.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-14-llm-failure-example.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-13-bijective-mappings-part-2.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-12-bijective-mappings-part-1.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-11-bijective-early-exit.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-10-letter-frequency-error.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-09-attention-maps.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/table-04-borg-multilingual.png",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers",
+    "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+    "Papers/HERACLES/HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS.md",
+    "zob_config/template/weekly.md",
+    "zob_config/template/article.md",
+    "zob_config/template/daily.md",
+    "zob_config/template/update_template.md",
+    "zob_config/js/thoughts_search_dataviewjs.md",
+    "zob_config/README.md",
+    "zob_config/template/代码备份.md",
+    "zob_config/template/template.md",
+    "zob_config/template/insert_clock.md",
+    "zob_config/js/dv-检索.js",
+    "zob_config/js/new daily dairy.js",
+    "zob_config/template",
+    "zob_config/js",
+    "zob_config",
+    "Papers/HERACLES/images",
+    "Papers/HERACLES",
+    "Papers/Transformers Learn Shortcuts to Automata/images",
+    "预测攻击.md",
+    "未命名.canvas",
+    "Papers/Iron - Private Inference on Transformers/Iron - Private Inference on Transformers.md",
+    "论文笔记/Iron - Private Inference on Transformers/Iron - Private Inference on Transformers.md",
+    "03_Knowledge/MOC - 计算机.md",
+    "欢迎.md",
+    "领域地图.md"
+  ]
+}
