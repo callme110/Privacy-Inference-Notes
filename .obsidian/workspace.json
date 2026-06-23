@@ -4,143 +4,20 @@
     "type": "split",
     "children": [
       {
-        "id": "c1f42302983d5aff",
+        "id": "2b192417cd510e59",
         "type": "tabs",
         "children": [
           {
-            "id": "1ce3df6c3885d10e",
+            "id": "4bd51496a920ffcc",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
-                "mode": "preview",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Transformers Learn Shortcuts to Automata"
-            }
-          },
-          {
-            "id": "37d34be75f191266",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
-            }
-          },
-          {
-            "id": "1647d37e909bccdb",
-            "type": "leaf",
-            "state": {
-              "type": "pdf",
-              "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf"
-              },
-              "icon": "lucide-file-text",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
-            }
-          },
-          {
-            "id": "ad018481a44f61eb",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice"
-            }
-          },
-          {
-            "id": "db5109c1c821bc5d",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers"
-            }
-          },
-          {
-            "id": "21837933cab9984c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "zob_config/template/article.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "article"
+              "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -172,7 +49,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#privacy-computing",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -266,13 +143,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -281,8 +157,8 @@
             "state": {
               "type": "calendar",
               "state": {},
-              "icon": "lucide-ghost",
-              "title": "calendar"
+              "icon": "calendar-with-checkmark",
+              "title": "Calendar"
             }
           }
         ],
@@ -309,8 +185,8 @@
   },
   "active": "1ff77f5ecf710091",
   "lastOpenFiles": [
-    "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+    "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
     "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
     "zob_config/template/article.md",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
@@ -343,7 +219,6 @@
     "zob_config",
     "Papers/HERACLES/images",
     "Papers/HERACLES",
-    "Papers/Transformers Learn Shortcuts to Automata/images",
     "预测攻击.md",
     "未命名.canvas",
     "Papers/Iron - Private Inference on Transformers/Iron - Private Inference on Transformers.md",
