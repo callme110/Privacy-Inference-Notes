@@ -7,7 +7,7 @@
   "sortType": "DISPNAME_ASC",
   "sortExactFirst": false,
   "sortTypeTag": "ITEMS_DESC",
-  "expandLimit": 0,
+  "expandLimit": 2,
   "disableNestedTags": false,
   "hideItems": "NONE",
   "ignoreFolders": "",

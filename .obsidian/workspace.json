@@ -32,6 +32,42 @@
             }
           },
           {
+            "id": "37d34be75f191266",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
+            }
+          },
+          {
+            "id": "1647d37e909bccdb",
+            "type": "leaf",
+            "state": {
+              "type": "pdf",
+              "state": {
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf"
+              },
+              "icon": "lucide-file-text",
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
+            }
+          },
+          {
             "id": "ad018481a44f61eb",
             "type": "leaf",
             "state": {
@@ -78,9 +114,33 @@
               "icon": "lucide-file",
               "title": "ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers"
             }
+          },
+          {
+            "id": "21837933cab9984c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "zob_config/template/article.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "article"
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -153,8 +213,7 @@
               "title": "Tag Folder"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
@@ -207,13 +266,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/HERACLES/HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS.md",
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS 的大纲"
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的大纲"
             }
           },
           {
@@ -248,8 +307,13 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "db5109c1c821bc5d",
+  "active": "1ff77f5ecf710091",
   "lastOpenFiles": [
+    "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
+    "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+    "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+    "zob_config/template/article.md",
+    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
     "Papers/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice.md",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-16-17-18-probing-appendix.png",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-15-llm-extended-thinking-failure.png",
@@ -262,12 +326,9 @@
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/figure-09-attention-maps.png",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images/table-04-borg-multilingual.png",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/images",
-    "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers",
-    "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
     "Papers/HERACLES/HERACLES - 8192-Way SIMD Programmable Scalable Fully-Homomorphic Encryption SoC for Privacy-Preserving Cloud Computing in Intel 3 CMOS.md",
     "zob_config/template/weekly.md",
-    "zob_config/template/article.md",
     "zob_config/template/daily.md",
     "zob_config/template/update_template.md",
     "zob_config/js/thoughts_search_dataviewjs.md",
