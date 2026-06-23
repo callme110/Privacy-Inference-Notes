@@ -153,7 +153,8 @@
               "title": "Tag Folder"
             }
           }
-        ]
+        ],
+        "currentTab": 2
       }
     ],
     "direction": "horizontal",

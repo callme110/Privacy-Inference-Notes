@@ -4501,6 +4501,7 @@ constructions
 cryptogram
 cipher
 ciphers
+cryptographic
 Computer
 Concepts
 ChatGpt
@@ -8769,6 +8770,7 @@ ChaCha
 CSPRNG
 Ciphers
 Cryptogram
+Cryptographic
 Organazation
 OSTEP
 Operating
@@ -73337,6 +73339,7 @@ NeRF
 NoC
 NIST
 Neumann
+Neurons
 Programming
 Parallel
 PLAM
@@ -161737,6 +161740,7 @@ recency
 rangle
 relaxation
 recovery
+revised
 xv
 xpy
 xlb
