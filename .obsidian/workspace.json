@@ -30,8 +30,33 @@
               "icon": "lucide-file",
               "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
             }
+          },
+          {
+            "id": "759f6fc1ecc10962",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Transformers Learn Shortcuts to Automata"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -124,7 +149,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -134,7 +159,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的反向链接列表"
+              "title": "Transformers Learn Shortcuts to Automata 的反向链接列表"
             }
           },
           {
@@ -158,13 +183,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的大纲"
+              "title": "Transformers Learn Shortcuts to Automata 的大纲"
             }
           },
           {
@@ -199,7 +224,7 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "4bd51496a920ffcc",
+  "active": "759f6fc1ecc10962",
   "lastOpenFiles": [
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
