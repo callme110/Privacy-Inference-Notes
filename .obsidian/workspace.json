@@ -11,10 +11,24 @@
             "id": "4bd51496a920ffcc",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
             }
           }
         ]
@@ -110,6 +124,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +134,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "反向链接"
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的反向链接列表"
             }
           },
           {
@@ -143,12 +158,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity 的大纲"
             }
           },
           {
@@ -183,7 +199,7 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "1ff77f5ecf710091",
+  "active": "4bd51496a920ffcc",
   "lastOpenFiles": [
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
