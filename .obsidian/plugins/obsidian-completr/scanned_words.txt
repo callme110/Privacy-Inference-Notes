@@ -4505,6 +4505,8 @@ cryptographic
 cXNgt
 cpLJ
 caqssc
+cryptanalysis
+cryptanalytic
 Computer
 Concepts
 ChatGpt
@@ -8779,6 +8781,8 @@ Cgdk
 CKm
 CMBU
 Cox
+Cryptanalytic
+Carlini
 Organazation
 OSTEP
 Operating
@@ -16804,6 +16808,7 @@ aCr
 a`X
 aV`jd
 agcH
+attacker
 Design
 Data
 Database
@@ -25059,6 +25064,8 @@ TVKb
 Tse
 Tca
 TvE
+Takayuki
+Todo
 Hardware
 HPC
 Hulu
@@ -41703,6 +41710,7 @@ Abelian
 ALICE
 ADP
 Ayzf
+Akira
 java
 jyy
 js
@@ -49953,6 +49961,7 @@ pqD
 pqB
 pqrf
 pSi
+persistent
 Understanding
 USTC
 Unix
@@ -69648,6 +69657,7 @@ nMOSE
 ngrL
 ndFM
 nID
+nonlinear
 Network
 Nvidia
 NCNN
@@ -85861,6 +85871,7 @@ MAJORITY
 MOD
 Manuscript
 Mxo
+Miura
 JYY
 Jim
 Jina
@@ -118485,6 +118496,7 @@ mpc
 mFcw
 mTMk
 mUMo
+minimum
 blog
 batchsize
 batch
@@ -126758,6 +126770,8 @@ intervention
 indexed
 iUqi
 iHU
+inactive
+inactivation
 you
 yX
 yYX
@@ -138063,6 +138077,8 @@ FuB
 FxC
 FyX
 FAVG
+Fashion
+FMNIST
 Quant
 Qa
 QR
@@ -197043,6 +197059,7 @@ von
 vtzf
 vJx
 vvcJx
+victim
 debug
 design
 dead
@@ -201330,6 +201347,7 @@ deficient
 d`bw
 dSLhW
 dfQTt
+discovered
 Youtube
 YOLO
 Your
@@ -205151,6 +205169,7 @@ YCN
 YjC
 YRAN
 YaT
+Yosuke
 Xg
 Xx
 XC

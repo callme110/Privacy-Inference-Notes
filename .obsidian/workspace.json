@@ -54,9 +54,33 @@
               "icon": "lucide-file",
               "title": "Transformers Learn Shortcuts to Automata"
             }
+          },
+          {
+            "id": "2796b08db0da5710",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -149,7 +173,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -159,7 +183,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Transformers Learn Shortcuts to Automata 的反向链接列表"
+              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial 的反向链接列表"
             }
           },
           {
@@ -183,13 +207,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
+                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Transformers Learn Shortcuts to Automata 的大纲"
+              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial 的大纲"
             }
           },
           {
@@ -224,11 +248,11 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "759f6fc1ecc10962",
+  "active": "2796b08db0da5710",
   "lastOpenFiles": [
+    "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
-    "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
     "zob_config/template/article.md",
     "Papers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers/ALICE - An Interpretable Neural Architecture for Generalization in Substitution Ciphers.md",
     "Papers/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice/Transformers in Pseudo-Random Number Generation - A Dual Perspective on Theory and Practice.md",
