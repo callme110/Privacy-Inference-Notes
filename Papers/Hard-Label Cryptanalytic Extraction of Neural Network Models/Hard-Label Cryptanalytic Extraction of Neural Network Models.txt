@@ -1,0 +1,1779 @@
+                                          Hard-Label Cryptanalytic Extraction of Neural
+                                                        Network Models
+
+                                                Yi Chen1 ID , Xiaoyang Dong2,5 ID , Jian Guo3 ID , Yantian Shen4 ID ,
+                                                          Anyu Wang1,5 ID , and Xiaoyun Wang1,5,6(B) ID
+                                                1
+                                                     Institute for Advanced Study, Tsinghua University, Beijing, China,
+                                          chenyi2023@mail.tsinghua.edu.cn, {anyuwang, xiaoyunwang}@tsinghua.edu.cn
+                                            2
+                                               Institute for Network Sciences and Cyberspace, BNRist, Tsinghua University,
+                                                              Beijing, China, xiaoyangdong@tsinghua.edu.cn
+                                         3
+                                            School of Physical and Mathematical Sciences, Nanyang Technological University,
+arXiv:2409.11646v1 [cs.CR] 18 Sep 2024
+
+
+
+
+                                                                       Singapore, guojian@ntu.edu.sg
+                                          4
+                                              Department of Computer Science and Technology, Tsinghua University, Beijing,
+                                                                  China, shenyt22@mails.tsinghua.edu.cn
+                                                                5
+                                                                   Zhongguancun Laboratory, Beijing, China
+                                            6
+                                               Shandong Key Laboratory of Artificial Intelligence Security, Shandong, China
+
+
+
+                                               Abstract. The machine learning problem of extracting neural network
+                                               parameters has been proposed for nearly three decades. Functionally
+                                               equivalent extraction is a crucial goal for research on this problem. When
+                                               the adversary has access to the raw output of neural networks, vari-
+                                               ous attacks, including those presented at CRYPTO 2020 and EURO-
+                                               CRYPT 2024, have successfully achieved this goal. However, this goal is
+                                               not achieved when neural networks operate under a hard-label setting
+                                               where the raw output is inaccessible.
+                                               In this paper, we propose the first attack that theoretically achieves
+                                               functionally equivalent extraction under the hard-label setting, which
+                                               applies to ReLU neural networks. The effectiveness of our attack is val-
+                                               idated through practical experiments on a wide range of ReLU neural
+                                               networks, including neural networks trained on two real benchmarking
+                                               datasets (MNIST, CIFAR10) widely used in computer vision. For a neu-
+                                               ral network consisting of 105 parameters, our attack only requires several
+                                               hours on a single core.
+
+                                               Keywords: Cryptanalysis · ReLu Neural Networks · Functionally Equiv-
+                                               alent Extraction · Hard-Label.
+
+
+                                         1   Introduction
+
+                                         Extracting all the parameters (including weights and biases) of a neural network
+                                         (called victim model) is a long-standing open problem which is first proposed by
+                                         cryptographers and mathematicians in the early nineties of the last century [2,
+                                         7], and has been widely studied by research groups from both industry and
+                                         academia [1, 3, 4, 11, 14, 16, 18, 20].
+    In previous research [3, 4, 11, 14, 16, 18, 20], one of the most common attack
+scenarios is as follows. The victim model (denoted by fθ where θ denotes the
+parameters) is made available as an Oracle O, then the adversary generates
+inputs x to query O and collects the feedback ζ to extract the parameters.
+This is similar to a cryptanalysis problem: θ is considered the secret key, and
+the adversary tries to recover the secret key θ, given the pairs (x, ζ) [4]. If fθ
+contains m parameters (64-bit floating-point numbers), then the secret key θ
+contains 64 × m bits, and the computation complexity of brute force searching
+is 264×m .
+    Consider that there may be isomorphisms for neural networks, e.g., permu-
+tation and scaling for ReLU neural networks [18]. An important concept named
+functionally equivalent extraction is summarized and proposed in [11].
+
+Functionally Equivalent Extraction. Denote by X the input space of the
+victim model fθ . Functionally equivalent extraction aims at generating a model
+fθb (i.e., the extracted model), such that fθ (x) = fθb(x) holds for all x ∈ X ,
+where fθ (x) and fθb(x) are, respectively, the raw output of the victim model
+and the extracted model [11]. Such extracted model fθb is called the functionally
+equivalent model of fθ (also say that fθ and fθb are isomorphic [18]). Since fθb
+behaves the same as fθ , the adversary can explore the properties of fθ by taking
+fθb as a perfect substitute 1 .
+    Functionally equivalent extraction is hard [11]. Consider the isomorphisms
+(permutation and scaling) introduced in [18]. Scaling can change parameters and
+permutation does not. For a ReLU neural network fθ that contains m parameters
+(64-bit floating-point numbers) and n neurons, from the perspective of the above
+cryptanalysis problem, even though scaling can be applied to each neuron once,
+the adversary still needs to recover 64 × (m − n) secret key bits. Note that the
+case of m ≫ n is common for neural networks. For example, for the ReLU neural
+networks extracted by Carlini et al. at CRYPTO 2020 [4], the pairs (m, n) are
+(25120, 32), (100480, 128), (210, 20), (420, 40), and (4020, 60). Besides, even if
+we only recover a few bits (instead of 64 bits) of each parameter, the number of
+secret key bits to be recovered is still large, particularly in the case of large m.
+    When a functionally equivalent model fθb is obtained, the adversary can do
+more damage (e.g., adversarial attack [5]) or steal user privacy (e.g., property
+inference attack [9]). Thus, even though the cost is expensive, the adversary has
+the motivation to achieve functionally equivalent extraction.
+
+Hard-label Setting. According to the taxonomy in [11], when the Oracle is
+queried, there are 5 types of feedback given by the Oracle: (1) label (the most
+likely class label, also called hard-label), (2) label and score (the most-likely class
+label and its probability score), (3) top-k scores, (4) all the label scores, (5) the
+raw output (i.e., fθ (x)). When the Oracle only returns the hard-label, we say
+1
+    Due to the isomorphisms introduced in [18], the parameters θb of the extracted model
+    may be different from that θ of the victim model, but it does not matter as long as
+    fθb is the functionally equivalent model of fθ .
+
+
+                                            2
+that the victim model fθ (i.e., neural networks in this paper) works under the
+hard-label setting [8].
+    To the best of our knowledge, there are no functionally equivalent extrac-
+tion attacks that are based on the first four types of feedback so far. From the
+perspective of cryptanalysis, the raw output fθ (x) is equivalent to the complete
+ciphertext corresponding to the plaintext (i.e., the query x). The other four types
+of feedback only reveal some properties of the ciphertext (raw output fθ (x)). For
+example, when fθ (x) ∈ R, the hard-label only tells whether fθ (x) > 0 holds or
+not [8]. Among the five types of feedback, the raw output leaks the most infor-
+mation, while the hard-label (i.e., the first type of feedback) leaks the least [11].
+    Assuming that the feedback of the Oracle is the raw output, Jagielski et al.
+propose the first functionally equivalent extraction attack against ReLU neu-
+ral networks with one hidden layer [11], which is extended to deeper neural
+networks in [18]. At CRYPTO 2020, Carlini et al. propose a differential extrac-
+tion attack [4] that requires fewer queries than the attack in [18]. However, the
+differential extraction attack requires an exponential amount of time, which is
+addressed by Canales-Martı́nez et al. at EUROCRYPT 2024 [3]. Note that the
+extraction attacks in [3,4,18] are also based on the assumption that the feedback
+is the raw output. Due to the dependence on the raw output, all the authors
+in [3, 4, 11, 18], state that the hard-label setting (i.e., the feedback is the first
+type) is a defense against functionally equivalent extraction.
+    The above backgrounds lead to the question not studied before
+
+       Is it possible to achieve functionally equivalent extraction against
+               neural network models under the hard-label setting?
+
+
+1.1   Our Results and Techniques
+
+Results. We have addressed this question head-on in this paper. In total, the
+answer is yes, and we propose the first functionally equivalent extraction attack
+against ReLU neural networks under the hard-label setting. Here, the definition
+of functionally equivalent extraction proposed in [4] is extended reasonably.
+
+Definition 1 (Extended Functionally Equivalent Extraction) The goal of
+the extended functionally equivalent extraction is to generate a model fθb (i.e.,
+the extracted model), such that fθb(x) = c × fθ (x) holds for all x ∈ X , where
+c > 0 is a fixed constant, fθ (x) and fθb(x) are, respectively, the raw output of the
+victim model and the extracted model. The extracted model fθb is the functionally
+equivalent model of the victim model fθ .
+
+    Since fθb(x) = c × fθ (x) holds for all x ∈ X , i.e., fθb is a simple scalar product
+of fθ , the adversary still can explore the properties of the victim model fθ by
+taking fθb as a perfect substitute. This is why we propose this extended definition.
+From the perspective of cryptanalysis, this extended definition allows the adver-
+sary not to guess the 64 bits of the constant c. To evaluate the efficacy of our
+model extraction attacks, and quantify the degree to which a model extraction
+
+
+                                           3
+attack has succeeded in practice, we generalize the metric named (ε, δ)-functional
+equivalence proposed in [4].
+
+Definition 2 (Extended (ε, δ)-Functional Equivalence) Two models fθb and
+fθ are (ε, δ)-functional equivalent on S if there exists a fixed constant c > 0 such
+that                                                 
+                     Prx∈S fθb(x) − c × fθ (x) ⩽ ε ⩾ 1 − δ
+
+    In this paper, we propose two model extraction attacks, one of which applies
+to 0-deep neural networks, and the other one applies to k-deep neural networks.
+The former attack is the basis of the latter attack. Our model extraction attacks
+theoretically achieve functionally equivalent extraction described in Definition 1,
+where the constant c > 0 is determined by the model parameter θ.
+    We have also performed numerous experiments on both untrained and trained
+neural networks, for verifying the effectiveness of our model extraction attacks
+in practice. The untrained neural networks are obtained by randomly gener-
+ating model parameters. To fully verify our attacks, we also adopt two real
+benchmarking image datasets (i.e., MNIST and CIFAR10) widely used in com-
+puter vision, and train many classifiers (i.e., trained neural networks) as the
+victim model. Our model extraction attacks show good performances in ex-
+periments. The complete experiment results refer to Tables 1 and 2 in Sec-
+tion 7. The number of parameters of neural networks in our experiments is
+up to 105 , but the runtime of the proposed extraction attack on a single core
+is within several hours. Our experiment code is uploaded to GitHub (https:
+//github.com/AI-Lab-Y/NN_cryptanalytic_extraction).
+    The analysis of the attack complexity is presented in Appendix B. For the
+extraction   attack on k-deep neural networks, its query complexity is about
+                   1
+   
+O d0 × 2n × log2ϵ , where d0 and n are, respectively, the input dimension (i.e.,
+                                          ϵ is a precisionchosen by the adversary.
+the size of x) and the number of neurons, 
+                                                  2
+The computation complexity is about O n × 2n +n+k , where n is the number
+of neurons and k is the number of hidden layers. The computation complexity
+of our attack is much lower than that of brute-force searching.
+
+Techniques. By introducing two new concepts, namely model activation pat-
+tern and model signature, we obtained some findings as follows. A ReLU neural
+network is composed of a certain number of affine transformations corresponding
+to model activation patterns. Each affine transformation leaks partial informa-
+tion about neural network parameters, which is determined by the corresponding
+model activation pattern. Most importantly, for a neural network that contains
+n neurons, n + 1 special model activation patterns will leak all the information
+about the neural network parameters.
+    Inspired by the above findings, we design a series of methods to find decision
+boundary points, recover the corresponding affine transformations, and further
+extract the neural network parameters. These methods compose the complete
+model extraction attacks.
+
+
+                                        4
+Organization. The basic notations, threat model, attack goal and assumptions
+are introduced in Section 2. Section 3 introduces some auxiliary concepts. Then
+we introduce the overview of our model extraction attacks, the idealized model
+extraction attacks, and some refinements in practice in the following three sec-
+tions respectively. Experiments are introduced in Section 7. At last, we present
+more discussions about our work and conclude this paper.
+
+2     Preliminaries
+2.1     Basic Definitions and Notations
+This section presents some necessary definitions and notations.
+Definition 3 (k-Deep Neural Network [4]) A k-deep neural network fθ (x)
+is a function parameterized by θ that takes inputs from an input space X and
+returns values in an output space Y. The function f : X → Y is composed of
+alternating linear layers fi and a non-linear activation function σ:
+                           f = fk+1 ◦ σ ◦ · · · ◦ σ ◦ f2 ◦ σ ◦ f1 .                     (1)
+    In this paper, we exclusively study neural networks over X = Rd0 and
+Y = Rdk+1 , where d0 and dk+1 are positive integers. As in [3, 4], we only
+consider neural networks using the ReLU [15] activation function, given by
+σ : x 7→ max(x, 0).
+Definition 4 (Fully Connected Layer [4]) The i-th fully connected layer of
+a neural network is a function fi : Rdi−1 → Rdi given by the affine transformation
+                                    fi (x) = A(i) x + b(i) .                            (2)
+where A(i) ∈ Rdi ×di−1 is a di ×di−1 weight matrix, b(i) ∈ Rdi is a di -dimensional
+bias vector.
+Definition 5 (Neuron [4]) A neuron is a function determined by the corre-
+sponding weight matrix, bias vector, and activation function. Formally, the j-th
+neuron of layer i is the function η given by
+                                                  
+                                         (i)   (i)
+                            η(x) = σ Aj x + bj ,                             (3)
+          (i)       (i)
+where Aj and bj denote, respectively, the j-th row of A(i) and j-th coordinate
+                                                          Pk
+of b(i) . In a k-deep neural network, there are a total of i=1 di neurons.
+Definition 6 (Neuron State [3]) Let V(η; x) denote the value that neuron η
+takes with x ∈ X before applying σ. If V(η; x) > 0, then η is active, i.e., the
+neuron state is active. Otherwise, the neuron state is inactive 2 . The state of
+                                                     (i)              (i)
+the j-th neuron in layer i on input x is denoted by Pj (x) ∈ F2 . If Pj (x) = 1,
+                              (i)
+the neuron is active. If Pj (x) = 0, the neuron is inactive.
+2
+    In [3,4], the authors defined one more neuron state, namely critical, i.e., V(η; x) = 0,
+    which is a special inactive state since the output of neuron η is 0.
+
+
+                                               5
+Definition 7 (Neural Network Architecture [4]) The architecture of a fully
+connected neural network captures the structure of fθ : (a) the number of layers,
+(b) the dimension di of each layer i = 0, · · · , k + 1. We say that d0 is the dimen-
+sion of the input to the neural network, and dk+1 denotes the number of outputs
+of the neural network.
+
+Definition 8 (Neural Network Parameters [4]) The parameters θ of a k-
+deep neural network fθ are the concrete assignments to the weights A(i) and
+biases b(i) for i ∈ {1, 2, · · · , k + 1}.
+
+    When neural networks work under the hard-label setting, the raw output
+fθ (x) is processed before being returned [8]. This paper considers the most com-
+mon processing. The raw output fθ (x) ∈ Rdk+1 is first transformed into a cat-
+egory probability vector P ∈ Rdk+1 by applying the Sigmoid (when dk+1 = 1)
+or Softmax (when dk+1 > 1) function to fθ (x) [6]. Then, the category with
+the largest probability is returned as a hard-label. Definition 9 summarizes the
+hard-label and corresponding decision conditions on the raw output fθ (x).
+
+Definition 9 (Hard-Label) Consider a k-deep neural network f : X → Y
+where Y ∈ Rdk+1 . The hard-label (denoted by z) is related to the outputs fθ (x).
+When dk+1 = 1, the hard-label z (fθ (x)) is computed as
+                                     
+                                       1, if fθ (x) > 0,
+                        z (fθ (x)) =                                          (4)
+                                       0, if fθ (x) ⩽ 0.
+
+When dk+1 > 1, the output fθ (x) is a dk+1 -dimensional vector. The hard-label
+z (fθ (x)) is the coordinate of the maximum of fθ (x). 3
+
+
+2.2     Adversarial Goals and Assumptions
+
+There are two parties in a model extraction attack: the oracle O who possesses
+the neural network fθ (x), and the adversary who generates queries x to the Or-
+acle. Under the hard-label setting, the Oracle O returns the hard-label z (fθ (x))
+in Definition 9.
+
+Definition 10 (Model Parameter Extraction Attack) A model parameter
+extraction attack receives Oracle access to a parameterized function fθ (i.e., a
+k-deep neural network in our paper) and the architecture of fθ , and returns a
+set of parameters θb with the goal that fθb(x) is as similar as possible to c × fθ (x)
+where c > 0 is a fixed constant.
+
+   In this paper, we use the b symbol to indicate an extracted parameter. For
+example, θ is the parameters of the victim model fθ , and θb stands for the pa-
+rameters of the extracted model fθb.
+3
+    If there are ties, i.e., multiple items of fθ (x) share the same maximum, the hard-label
+    is the smallest one of the coordinates of these items.
+
+
+                                              6
+Assumptions. We make the following assumptions of the Oracle O and the
+capabilities of the attacker:
+ – Architecture knowledge. We require knowledge of the neural network
+   architecture.
+ – Full-domain inputs. We can feed arbitrary inputs from X = Rd0 .
+ – Precise computations. fθ is specified and evaluated using 64-bit floating-
+   point arithmetic.
+ – Scalar outputs. The output dimensionality is 1, i.e., Y = R. 4
+ – ReLU Activations. All activation functions (σ’s) are the ReLU function.
+   Compared with the work in [4], we remove the assumption of requiring the
+raw output fθ (x) of the neural network. Now, after querying the Oracle O, the
+attacker obtains the hard-label z (fθ (x)). In other words, the attacker only knows
+whether fθ (x) > 0 holds or not.
+
+
+3      Auxiliary Concepts
+To help understand our attacks, this paper proposes some auxiliary concepts.
+
+3.1     Model Activation Pattern
+To describe all the neuron states, we introduce a new concept named Model
+Activation Pattern.
+
+Definition 11 (Model Activation Pattern) Consider a k-deep neural net-
+                   Pk
+work fθ with n = i=1 di neurons. The model activation pattern of fθ over an
+input x ∈ X is a global description of the n neuron states, and is denoted by
+P(x) = (P (1) (x), · · · , P (k) (x)) where P (i) (x) ∈ Fd2i is the concatenation of di
+                         (i)
+neuron states (i.e., Pj (x), i ∈ {1, · · · , di }) in layer i.
+
+                                                  (i)
+      In the rest of this paper, the notations Pj (x), P (i) (x), and P(x) are sim-
+              (i)
+plified as Pj , P (i) , and P respectively, when the meaning is clear in context.
+Besides, P (i) ∈ Fd2i is represented by a di -bit integer. For example, P (i) = 2j−1
+means that only the j-th neuron in layer i is active, and P (i) = 2di − 1 means
+that all the di neurons are active.
+    When the model activation pattern is known, one can precisely determine
+which neural network parameters influence the output fθ (x). Consider the j-th
+neuron η in layer i. Due to the ReLU activation function, if the neuron state
+is inactive, neuron η does not influence the output fθ (x). As a result, all the
+           (i+1)        (i)
+weights A?,j and Aj,? ( i.e., the elements of the j-th column of A(i+1) , and the
+                                                (i)
+j-th row of A(i) respectively) and the bias bj do not affect the output fθ (x).
+4
+    This assumption is fundamental to our work. Our attack only applies to the case of
+    scalar outputs.
+
+
+                                           7
+Special ‘neuron’. For the convenience of introducing model extraction attacks
+later, we regard the input x ∈ Rd0 and the output fθ (x) ∈ R as, respectively, d0
+and 1 special ‘neurons’ that are always active. So we adopt two extra notations
+P (0) = 2d0 − 1 and P (k+1) = 21 − 1 = 1, for describing the states of the special
+d0 + 1 ‘neurons’. But if not necessary, we will omit the two notations.
+
+3.2     Model Signature
+Consider a k-deep neural network fθ . For an input x ∈ X , fθ can be described
+as an affine transformation
+                                                         
+                          (2)          (1)
+   fθ (x) = A(k+1) · · · IP A(2) IP A(1) x + b(1) + b(2) · · · + b(k+1)
+                                                                            (5)
+                    (k)           (2)      (1)
+          = A(k+1) IP A(k) · · · IP A(2) IP A(1) x + BP = ΓP x + BP ,
+where P is the model activation pattern over x, ΓP ∈ Rd0 , and BP ∈ R. Here,
+  (i)
+IP ∈ Rdi ×di are 0-1 diagonal matrices with a 0 on the diagonal’s j-th entry
+                           (i)                      (i)
+when the neuron state Pj is 0, and 1 when Pj = 1.
+      The affine transformation is denoted by a tuple (ΓP , BP ). Except for P, the
+value of the tuple (ΓP , BP ) is only determined by the neural network parameters,
+i.e., A(i) and b(i) , i ∈ {1, · · · , k + 1}. Once the value of any neural network
+parameters is changed, the value of the tuple (ΓP , BP ) corresponding to some
+P’s will change too 5 . Therefore, we regard the set of all the possible tuples
+(ΓP , BP ) as a unique model signature of the neural network.
+Definition 12 (Model Signature) For a k-deep neural network fθ (x), the
+model signature denoted by Sθ is the set of affine transformations
+                           Sθ = {(ΓP , BP ) for all the P’s}.
+    In [3], Canales-Martı́nez et al. use the term ‘signature’ to describe the weights
+related to a neuron, which is different from the model signature. Except for
+the model signature, we propose another important concept, namely normalized
+model signature.
+Definition 13 (Normalized Model Signature) Consider a victim model fθ
+and its model signature Sθ = {(ΓP , BP ) for all the P’s} . Denote by ΓP,j the
+j-th element of ΓP for j ∈ {1, · · · , d0 }. Divide the set of P’s into two subsets
+Q1 and Q2 . For each P ∈ Q1 , ΓP,j = 0 for j ∈ {1, · · · , d0 }. For each P ∈ Q2 ,
+there is at least one non-zero element in ΓP , without loss of generality, assume
+that ΓP,1 ̸= 0. Let SθN be the following set
+                                                                      
+           N                                   ΓP     BP
+         Sθ = (ΓP , BP ) for P ∈ Q1 ,               ,          for P ∈ Q2 .
+                                             |ΓP,1 | |ΓP,1 |
+The set SθN is the normalized model signature of fθ .
+5
+    We do not consider the case of some neurons being always inactive, since such neurons
+    are redundant and usually deleted by various network pruning methods (e.g., [10])
+    before the neural network is deployed as a prediction service.
+
+
+                                            8
+    Shortly, the difference between the normalized model signature SθN and the
+initial model signature Sθ is as follows. For each P ∈ Q2 , i.e., there is at least one
+non-zero element in ΓP (without loss of generality, assume that the    first element
+is non-zero, i.e.,ΓP,1 ̸= 0), we transform the parameter tuple into |ΓΓP,1
+                                                                        P       BP
+                                                                           | , |ΓP,1 | .
+    In our attacks, the normalized model signature plays two important roles.
+First, the recovery of all the weights A(i) relies on the subset Q2 . Second, our
+attacks will produce many extracted models during the attack process while at
+most only one is the functionally equivalent model of fθ , and the normalized
+model signature is used to filter functionally inequivalent models.
+
+3.3   Decision Boundary Point
+Our attacks exploit a special class of inputs named Decision Boundary Points.
+Definition 14 (Decision Boundary Point) Consider a neural network fθ . If
+an input x makes fθ (x) = 0 hold, x is a decision boundary point.
+   The extraction attacks presented at CRYPTO 2020 [4] and EUROCRYPT
+2024 [3] exploit a class of inputs, namely critical points. Fig. 1 shows the differ-
+ence between critical points and decision boundary points.
+
+
+
+
+Fig. 1. Left: the critical point x = [x1 , x2 , x3 ]⊤ makes the output of one neuron (e.g.,
+the solid black circle) 0. Right: the decision boundary point x′ = [x′1 , x′2 , x′3 ]⊤ makes
+the output of the neural network 0.
+
+
+    Critical points leak information on the neuron states, i.e., whether the output
+of a neuron is 0, which is the core reason why the differential extraction attack
+can efficiently extract model parameters [4]. As a comparison, decision boundary
+points do not leak information on the neuron states.
+    Finding critical points relies on computing partial derivatives based on the
+raw output fθ (x), refer to the work in [3, 4]. Thus, under the hard-label setting,
+we can not exploit critical points.
+
+4     Overview of Our Cryptanalytic Extraction Attacks
+Under the hard-label setting, i.e., the Oracle returns the most likely class z (fθ (x))
+instead of the raw output fθ (x), only decision boundary points x will leak the
+value of fθ (x), since fθ (x) = 0. Motivated by this truth, our cryptanalytic ex-
+traction attacks focus on decision boundary points.
+
+
+                                             9
+Attack Process. At a high level, the complete attack contains five steps.
+
+    · Step 1: collect decision boundary points. The algorithm for finding
+      decision boundary points will be introduced in Section 6.1. Suppose that M
+      decision boundary points are collected.
+    · Step 2: recover the normalized model signature. Recover the tuples
+      (ΓP , BP ) corresponding to the M decision boundary points. After filtering
+      duplicate tuples, regard the set of the remaining tuples as the (partial) nor-
+      malized model signature SθN . Suppose that the size of Q2 is N , refer to
+      Definition 13. It means that there are N decision boundary points that can
+      be used to recover weights A(i) .
+    · Step
+      Pk 3: recover weights layer by layer. Suppose that there are n =
+         i=1 di neurons in the neural network. Randomly choose n + 1 out of N
+      decision boundary points each time, assign a specific model activation pat-
+      tern P to each selected decision boundary point, and recover the weights
+      A(1) , · · · , A(k+1) .
+    · Step 4: recover all the biases. Based on recovered weights, recover all
+      the biases b(i) , i ∈ {1, · · · , k + 1} simultaneously.
+    · Step 5: filter functionally inequivalent models. As long as N ⩾ n + 1
+      holds, we will obtain many extracted models, but it is expected that at most
+      only one is the functionally equivalent model. Thus, we filter functionally
+      inequivalent models in this step.
+
+Some functionally inequivalent models may not be filtered. For each surviving
+extracted model, we test the Prediction Matching Ratio (PMR, introduced in
+Section 6.3) over randomly generated inputs, and take the one with the highest
+PMR as the final candidate.
+   In Step 2, we recover the tuple (ΓP , BP ) by the extraction attack on 0-deep
+                                                                     (i)
+neural networks. In Step 3, for layer i > 1, the weight vector Aj of the j-th
+neuron (j ∈ {1, · · · , di }) is recovered by solving a system of linear equations.
+For layer 1, except for selecting d1 decision boundary points, the recovery of
+the weights A(1) does not use any extra techniques. In Step 4, all the biases are
+recovered by solving a system of linear equations.
+
+
+5     Idealized Hard-Label Model Extraction Attack
+
+This section introduces (0, 0)-functionally equivalent model extraction attacks
+under the hard-label setting, which assumes infinite precision arithmetic and
+recovers the functionally equivalent model. We first introduce the 0-deep neural
+network extraction attack, which is used in the k-deep neural network extraction
+attack to recover the normalized model signature.
+   Note that this section only (partially) involves Steps 2, 3, and 4 introduced
+in Section 4. In the next section, we introduce the remaining steps and refine
+the idealized attacks to work with finite precision.
+
+
+                                         10
+5.1   Zero-Deep Neural Network Extraction
+According to Definition 3, zero-deep neural networks are affine functions fθ (x) ≡
+                                                                       (1) (1)
+A(1) · x + b(1) where A(1) ∈ Rd0 , and b(1) ∈ R. Let A(1) = [w1 , · · · , wd0 ], and
+x = [x1 , x2 , · · · , xd0 ]⊤ . The model signature is Sθ = A(1) , b(1) .
+                                                                       
+
+    Our extraction attack is based on a decision boundary point x (i.e., fθ (x) =
+                                                                             (1)
+0), and composed of 3 steps: (1) recover weight signs, i.e., the sign of wi ; (2)
+                        (1)
+recover weights wi ; (3) recover bias b(1) .
+
+Recover Weight Signs. Denote by ei ∈ Rd0 the basis vector where only the
+i-th element is 1 and other elements are 0.
+    Let the decision boundary point x move along the direction ei , i ∈ {1, · · · , d0 },
+and the moving stride is s ∈ R where |s| > 0. Query the Oracle and obtain the
+                                               (1)
+hard-label z (f (x + sei )), then the sign of wi is
+                              
+                      (1)        1, if s > 0 and z (fθ (x + sei )) = 1,
+              sign(wi ) =                                                            (6)
+                                −1, if s < 0 and z (fθ (x + sei )) = 1.
+                                                                                     (1)
+When z (f (x + sei )) = 1, we have f (x + sei ) > 0, i.e., wi × s > 0. Thus, the
+sign of wi1 is the same as that of s. If z (f (x + sei )) = 0 always holds, no matter
+                                                (1)
+if s is positive or negative, then we have wi = 0.
+                                                                                                 (1)
+Recover Weights. Without loss of generality, assume that w1 ̸= 0.
+     At first, let the decision boundary point x move along e1 with a moving stride
+s1 , such that the hard-label of the new point x+s1 e1 is 1, i.e., z (f (x + s1 e1 )) = 1.
+Then, let the new point x + s1 e1 move along ei with a moving stride si where
+               (1)
+i ̸= 1 and wi ̸= 0 , such that x + s1 e1 + si ei is a decision boundary point too.
+As a result, we have
+                                      (1)     (1)
+                                  s1 w1 + si wi = 0,                                   (7)
+                                       (1)
+                                   wi                                            (1)
+and obtain the weight ratio         (1)      . Since the signs of wi                   are known, the final
+                                   w1
+extracted weights are
+                                                                                
+                                             (1)        (1)             (1)
+                                                                       wd0
+                        b(1)
+                        A      =    w1            ,
+                                                       w2
+                                                              ,··· ,             .                         (8)
+                                             (1)        (1)             (1)
+                                       w1              w1              w1
+
+                                                                                           (1)
+Recover Bias. The extracted bias is bb(1) = −Ab(1) · x = b      .
+                                                            (1)
+                                                          w
+                                                         1
+                                             (1)     (1)
+  Thus, the model signature of fθb is Sθb = A(1) , b (1) , and fθb(x) = f (x)
+                                                                          (1) .
+                                                                 w1         w1                         w1
+
+Remark 1. In [14], the authors propose different methods to extract the param-
+eters of linear functions fθ (x) = A(1) · x. Since this paper mainly focuses on
+the extraction attack on k-deep neural networks, we do not deeply compare our
+attack with the methods in [14].
+
+
+                                                       11
+5.2     k-Deep Neural Network Extraction
+Basing the 0-deep neural network extraction attack, we develop an extraction
+attack on k-deep neural networks. Recall that, the expression of k-deep neural
+networks is
+                                                     
+                          (2)     (1)
+   fθ (x) = A(k+1) · · · IP A(2) IP A(1) x + b(1) + b(2) · · · + b(k+1)
+                                                                           (9)
+          = ΓP x + B P
+                                                                                 
+where the model activation pattern is P = P (0) , P (1) , · · · , P (k) , P (k+1) and
+                                     (k)          (2)     (1)
+                      ΓP = A(k+1) IP A(k) · · · IP A(2) IP A(1) .                  (10)
+
+Notations. Our attack recovers weights layer by layer. Assuming that the
+weights of the first i − 1 layers have been recovered and we are trying to re-
+cover A(i) where i ∈ {1, · · · , k + 1}, we describe k-deep neural networks as:
+
+                    fθ (x) = ΓP x + BP = G (i) A(i) C (i−1) x + BP ,               (11)
+
+where G (i) ∈ Rdi and C (i−1) ∈ Rdi−1 ×d0 are, respectively, related to the unre-
+covered part (excluding A(i) ) and recovered part of the neural network fθ .
+   The values of G (i) and C (i−1) are
+                             (k)          (i+1)       (i)
+                  
+             (i)    A(k+1) IP A(k) · · · IP A(i+1) IP , if i ∈ {1, · · · , k}
+            G =
+                    1, if i = k + 1
+                                                                             (12)
+                    I, if i = 1
+        C (i−1) =     (i−1)           (1)
+                    IP A(i−1) · · · IP A(1) , if i ∈ {2, · · · , k + 1}
+
+where C (0) = I ∈ Rd0 ×d0 is a diagonal matrix with a 1 on each diagonal entry.
+
+Core Idea of Recovering Weights Layer by Layer. To better grasp the at-
+tack details presented later, we first introduce the core idea of recovering weights
+layer by layer. Assuming that the extracted weights of the first i − 1 layers are
+known, i.e., A               b(i−1) are known, we try to recover the weights in layer i.
+              b(1) , · · · , A
+    To obtain the weight vector A        b(i) of the j-th neuron (denoted by η (i) ) in
+                                          j                                       j
+layer i ∈ {1, · · · , k + 1} 6 , we exploit a decision boundary
+                                                                  point with the model
+activation pattern P = P (0) , P (1) , · · · , P (k) , P (k+1) where
+
+                           P (i−1) = 2di−1 − 1, P (i) = 2j−1 .                     (13)
+
+It means that, in layer i, only the j-th neuron is active, and all the di−1 neurons
+in layer i − 1 are active. Fig 2 shows a schematic diagram under this scenario.
+    Since P (i) = 2j−1 , all the k − i layers starting from layer i + 1 collapse into
+                              (i)
+a direct connection from ηj to the output fθ (x). The weight of this connection
+6
+    when i = k + 1, it means that we are trying to recover the weights A(k+1) .
+
+
+                                           12
+Fig. 2. The core idea of recovering the weight vector of the j-th neuron in layer i. Let
+x = [x1 , · · · , xd0 ]⊤ be a decision boundary point with P (i−1) = 2di−1 − 1, P (i) = 2j−1 ,
+i.e., in layer i, only the j-th neuron (the red hollow circle) is active, and in layer i−1, all
+the neurons are active. The first i − 1 layers have been extracted, and collapse into one
+layer. All the layers starting from layer i + 1 collapse into a direct connection between
+the j-th neuron in layer i and the final output.
+
+
+      (i)
+is Gj , i.e., the j-th element of G (i) (see Eq. (12)). The expression (see Eq. (11))
+of the k-deep neural network further becomes
+                                                     (i)   (i)
+                     fθ (x) = ΓP · x + BP = Gj Aj · C (i−1) · x + BP ,
+            (i)              (i)
+where Gj ∈ R and Aj · C (i−1) ∈ Rd0 .
+                                    the extraction
+   In Step 2 (see Section 4), applying             attack on zero-deep neural
+                                                  ΓP       BP
+networks, we can obtain the tuple               |ΓP,1 | , |ΓP,1 |     where
+
+                                  (i)   (i)                         (i)    (i)   (i−1)
+                      ΓP = Gj Aj · C (i−1) , ΓP,v = Gj Aj · C?,v                         .   (14)
+                          (i−1)
+Here the symbol C?,v stands for the v-th column vector of C (i−1) .
+   According to Eq. (14), the value of each element of |ΓΓP,1
+                                                           P
+                                                              | is not related
+                                        (i)
+to the absolute value of Gj , i.e., the unrecovered part does not affect the
+affine transformation. Then, basing the vector |ΓΓP,1P
+                                                       | and the extracted weights
+  (1)         (i−1)
+A ,··· ,A
+ b          b       , we build a system of linear equations and solve it to obtain
+Ab(i) . Next, we introduce more attack details.
+  j
+
+Recover Weights in Layer 1. To recover the weight vector of the j-th neuron
+in layer 1, we exploit the model activation pattern P where
+
+                  P (1) = 2j−1 ; P (i) = 2di − 1, for i ∈ {0, 2, 3, · · · , k + 1}.          (15)
+
+It means that, in layer 1, only the j-th neuron is active, and all the neurons in
+other layers are active.
+   Under this model activation pattern, according to Eq. (12), we have
+                                                                          (1)
+                                   G (1) = A(k+1) A(k) · · · A(2) IP .                       (16)
+
+
+                                                   13
+Now, the expression of the k-deep neural network is
+                                   
+                  (1)    (1)    (1)                              (1) (1)
+        fθ (x) = Gj     Aj x + bj     + B(P (2) ,··· ,P (k) ) = Gj Aj x + BP                                           (17)
+                      h                   i
+          (1)            (1)         (1)      (1)
+where Aj          = wj,1 , · · · , wj,d0 , Gj ∈ R is the j-th element of G (1) . As for
+                                                                                          
+B(P (2) ,··· ,P (k) ) ∈ R, it is a constant determined by P (2) , · · · , P (k) . In other
+words, when P (1) changes, the value of B(P (2) ,··· ,P (k) ) does not change.
+   Recall that, in Step 2, we have recovered the following weight vector
+                                                               
+                                  (1) (1)            (1) (1)
+                     ΓP         G j   w j,1        Gj    w j,d0 
+                          =                ,··· ,                , j ∈ {1, · · · , d1 }.   (18)
+                  |ΓP,1 |         (1) (1)
+                                G w                G w
+                                                      (1) (1)
+                                           j     j,1                   j     j,1
+
+
+                                      b(1) where
+In this step, our target is to obtain A j
+                                                       "                                 #
+                                                            1                 1
+                                                           wj,1              wj,d
+       b(1) = w
+              1               1
+                                                                                 0
+       A j    bj,1 , · · · , w
+                             bj,d 0
+                                      =                     1
+                                                                    ,··· ,     1
+                                                                                             , j ∈ {1, · · · , d1 }.   (19)
+                                                           wj,1               wj,1
+
+                                                                                                       (1)
+Therefore, we need to determine d1 signs, i.e., the signs of Gj for P (1) = 2j−1
+where j ∈ {1, · · · , d1 }.
+           (1)         (1)                   (1)
+   Since Aj x + bj > 0, we know that Gj × B(P (2) ,··· ,P (k) ) < 0 holds for
+j ∈ {1, · · · , d1 }, which tells us that the above d1 signs are the same. Thus, by
+                                       (1)
+guessing 1 sign, i.e., the sign of Gj for P (1) ∈ {21−1 , · · · , 2d1 −1 }, we obtain d1
+weight vectors presented in Eq. (19).
+
+Recover Weights in Layer i (i > 1). To recover the weight vector of the
+j-th neuron in layer i, we exploit the model activation pattern P where
+
+    P (i) = 2j−1 ; P (q) = 2dq − 1, for q ∈ {0, · · · , i − 1, i + 1, · · · , k + 1}.                                  (20)
+
+It means that, in layer i, only the j-th neuron is active, and all the neurons in
+other layers are active.
+   Under this model activation pattern, according to Eq. (12), we have
+                                                                                   (i)
+                              
+                    (i)             A(k+1) A(k) · · · A(i+2) A(i+1) IP , if i ∈ {2, · · · , k},
+                G         =
+                                    1, if i = k + 1,                                                                   (21)
+                (i−1)             (i−1)        (i−2)          (1)
+           C              =A               A           ···A         , if i ∈ {2, · · · , k + 1}.
+
+Now, the expression of k-deep neural networks becomes
+                                                       
+                  (i)   (i)
+        fθ (x) = Gj Aj C (i−1) x + B(P (1) ,··· ,P (i) ) + B(P (i+1) ,··· ,P (k) )
+                                                                                                                       (22)
+                              (i)    (i)
+                     = Gj Aj C (i−1) x + BP ,
+
+                                                                  14
+                     h                        i
+           (i)            (i)           (i)         (i)
+where Aj         =      wj,1 , · · · , wj,di−1 , Gj ∈ R and C (i−1) ∈ Rdi−1 ×d0 . Besides,
+                                                                      
+B(P (i+1) ,··· ,P (k) ) ∈ R is not related to P (1) , · · · , P (i) , and only determined by
+                         
+ P (i+1) , · · · , P (k) , i.e., B(P (i+1) ,··· ,P (k) ) is the same constant for j ∈ {1, · · · , di }.
+    Let us further rewrite fθ (x) in Eq. (22) as
+                                                                                                  
+                          di−1                                      di−1
+           (i)                     (i) (i−1)                                      (i)    (i−1)
+                          X                                           X
+ fθ (x) = Gj                    wj,v Cv,1  x1 + · · · +                  wj,v Cv,d0  xd0  +BP (23)
+                          v=1                                         v=1
+
+
+          (i−1)
+where Cv,u ∈ R is the u-th element of the v-th row vector of C (i−1) .
+   In Step 2, using the zero-deep neural network extraction attack, we have
+recovered the following di weight vectors (j ∈ {1, · · · , di })
+                           P                                             P                          
+                      (i)         di−1 (i) (i−1)                      (i)          di−1 (i) (i−1)
+     ΓP              Gj           v=1 wj,v Cv,1                   Gj               v=1 wj,v Cv,d0
+           =                       ,··· ,                       .                                      (24)
+   |ΓP,1 |    G
+                (i) Pdi−1 (i) (i−1)
+                         w C                 G
+                                               (i) Pdi−1 (i) (i−1)
+                                                        w C
+                      j           v=1    j,v     v,1                  j            v=1     j,v   v,1
+
+                                                              h                        i
+                                                        b(i) = w
+In this step, our target is to obtain the weight vector A
+                                                                  (i)
+                                                                      , · · · , w
+                                                                                  (i)
+                                                          j     bj,1            bj,di−1 .
+                                                                            (i)
+    It is clear that we need to guess the sign of Gj for j ∈ {1, · · · , di }. Again,
+all the di signs are the same. Consider the expression in Eq. (22). Since the j-th
+neuron is active, its output exceeds 0, i.e.,
+
+                          (i)
+                      Aj C (i−1) x + B(P (1) ,··· ,P (i) ) > 0, j ∈ {1, · · · , di }.
+
+         (i)
+Then Gj × B(P (i+1) ,··· ,P (k) ) < 0 holds for j ∈ {1, · · · , di }. At the same time,
+since B(P (i+1) ,··· ,P (k) ) is a constant, all the di signs are the same. Therefore, by
+                                                       (i)
+guessing one sign, i.e., the sign of Gj , based on Eq. (24), we obtain
+        P                                                                   
+          di−1 (i) (i−1)                          Pdi−1 (i) (i−1)
+          v=1 wj,v Cv,1                            v=1 wj,v Cv,d0
+       
+         Pdi−1 (i) (i−1)                ,··· ,    Pdi−1 (i) (i−1)             , j ∈ {1, · · · , di }.       (25)
+          v=1 wj,v Cv,1                            v=1 wj,v Cv,1
+
+
+               (i−1)                                                        b(i−1) are
+                                                             b(1) , · · · , A
+   Note that C
+             bv,u    can be obtained using Eq. (21), since A
+known. Then, basing the vector in Eq. (25), we build a system of linear equations
+                                P                     Pdi−1 (i) (i−1)
+                                   di−1 (i) b (i−1)          wj,v Cv,1
+                                
+                                 v=1  bj,v Cv,1 = Pdv=1
+                                       w                 i−1   (i) (i−1)
+                                                                          ,
+                                                             w j,v Cv,1
+                                
+                                                        v=1
+                                
+                                
+                                                    ..
+                                
+                                                     .                                                       (26)
+                                
+                                                      Pdi−1 (i) (i−1)
+                                  di−1 (i) b (i−1)          wj,v Cv,d
+                                       bj,v Cv,d0 = Pdv=1
+                                  P
+                                       w                                  ,
+                                
+                                                                       0
+                                 v=1                    i−1   (i) (i−1)
+                                                                  v=1     wj,v Cv,1
+
+
+
+                                                             15
+                                                h                       i
+When d0 ⩾ di−1 7 , we obtain A        b(i) = w     (i)
+                                                  bj,1 , · · · , w
+                                                                   (i)
+                                                                 bj,di−1 by solving the above
+                                        j
+system of linear equations. Lemma 1 summarizes the expression of extracted
+               b(i) , j ∈ {1, · · · , di }, i ∈ {2, · · · , k + 1}.
+weight vectors A j
+
+Lemma 1. Based on the system of linear equations presented in Eq. (26), for
+                                                                             b(i) =
+i ∈ {2, · · · , k + 1} and j ∈ {1, · · · , di }, the extracted weight vector A
+h                       i                                                      j
+   (i)             (i)
+ wbj,1 , · · · , w
+                 bj,di−1 is
+               (i)   Pdi−2 (i−1) (i−2)         (i)       Pdi−2 (i−1) (i−2) 
+               wj,1 ×   v=1 w1,v Cv,1          wj,di−1 ×     v=1 wdi−1 ,v Cv,1
+    b(i) = 
+    A                                   ,··· ,                                 ,
+      j             Pdi−1 (i) (i−1)                    Pdi−1 (i) (i−1)
+                      v=1 w   C
+                           j,v v,1                       v=1  w    C
+                                                                j,v v,1
+                                                                                            (27)
+                                         h                           i⊤
+       (q)    (q)                             (1)            (1)
+where Cv,1 = Av A(q−1) · · · A(2)            A1,1 , · · · , Ad1 ,1        .
+
+Proof. The proof refers to Appendix A.
+
+   In Lemma 1, for the consistency of the mathematical symbols, the weights
+                        (k+1)          (k+1)               (k+1)            (k+1)
+A(k+1) are denoted by [w1,1 , · · · , w1,dk ] instead of [w1     , · · · , wdk ].
+
+Recover All the Biases. Since A               b(i) for i ∈ {1, · · · , k + 1} have been obtained,
+we can extract all the biasesPk by solving a system of linear equations.
+    Concretely, for the i=1 di + 1 decision boundary points, fθb(x) = 0 should
+hold. Thus, we build a system of linear equations: fθb(x) = 0 where the expression
+of fθb(x) refers to Eq. (9). Combining with Lemma 1, by solving the above system,
+we will obtain
+               "                                                       #
+                           (i)                            (i)
+       bb(i) = P        b                               b
+                                       , · · · , Pdi−1 d(i)i (i−1) , i ∈ {1, · · · , k}
+                          1
+                   di−1    (i)  (i−1)
+                    v=1 w1,v Cv,1                   v=1 wdi ,v Cv,1                          (28)
+                           (k+1)
+                         b
+       bb(k+1) = Pdk (k+1) (k) .
+      
+      
+                      v=1 wv     Cv,1
+
+
+    Based on the extracted neural network parameters (see Eq. (19), Eq. (27),
+and Eq. (28)), the model signature of the extracted model fθb is
+                                                                               
+                            Γ P                  B P                         ′
+                                                                                  
+Sθb = (ΓbP , B
+             bP ) =                    ,                      for all the P   s   .
+                      Pdk     (k+1) (k)    Pdk     (k+1) (k)
+                           w  v=1 C v           wv,1   C    v=1      v       v,1
+                                                                                  
+
+   Consider the j-th neuron η in layer i. For an input x ∈ X , denote by h(η; x)
+the output of the neuron of the victim model. Based on the extracted neural
+network parameters (see Eq. (19), Eq. (27), and Eq. (28)), the output of the
+neuron of the extracted model is Pdi−1h(η;x)
+                                           (i) (i−1)
+                                                     . At the same time, all the
+                                                  v=1    wj,v Cv,1
+
+7
+    The case of d0 ⩾ di−1 is common in various applications, particularly in computer
+    vision [9, 13, 17], since the dimensions of images or videos are often large.
+
+
+                                                    16
+          (i+1)                                               Pdi−1 (i) (i−1)
+weights w?,j    in layer i + 1 are increased by a factor of      v=1 wj,v Cv,1   .
+Thus, for the victim model and extracted model, the j-th neuron in layer i has
+the same influence on all the neurons in layer i + 1. As a result, for any x ∈ X ,
+the model activation pattern of the victim model is the same as that of the
+extracted model. Combining with Sθb, for all x ∈ X , we have
+                                          1
+                       fθb(x) = P                    × fθ (x).                   (29)
+                                 dk      (k+1) (k)
+                                    v=1 wv    Cv,1
+
+   In Appendix C, we apply the extraction attack on 1-deep neural networks
+and directly present the extracted model, which helps further understand our
+attack.
+Remark 2. Except for the n + 1 model activation patterns as shown in Eq. (15)
+and Eq. (20), the adversary could choose a new set of n + 1 model activation
+patterns. The reason is as follows. Consider the recovery of the weight vector of
+the j-th neuron in layer i, and look at Fig. 2 again. Our attack only requires
+that: (1) in layer i, only the j-th neuron is active; (2) in layer i − 1, all the di−1
+neurons are active. The neuron states in other layers do not affect the attack.
+Thus, there are more options for the n + 1 model activation patterns, and the
+rationale does not change.
+
+Discussion on The Computation Complexity. Once n + 1 decision boundary
+points and k sign guesses are selected, to obtain an extracted model, we just
+need to solve n + 2 − d1 systems of linear equations. However, since the model
+activation pattern of a decision boundary point is unknown, we have to traverse
+all the possible combinations of n + 1 decision boundary points (see Step 3 in
+Section 4), which is the bottleneck of the total computation complexity. The
+complete analysis of the attack complexity is presented in Appendix B.
+
+
+6    Instantiating the Extraction Attack in Practice
+Recall that, the complete extraction attack contains 5 steps introduced in Sec-
+tion 4. To obtain a functionally equivalent model, the adversary also needs three
+auxiliary techniques: finding decision boundary points (related to Steps 1 and
+2), filtering duplicate affine transformations (related to Step 2), and filtering
+functionally inequivalent models (related to Step 5).
+    The idealized extraction attack introduced in Section 5 relies on decision
+boundary points x that make fθ (x) = 0 strictly hold. This section will propose a
+binary searching method to find decision boundary points under the hard-label
+setting. Under finite precision, it is hard to find decision boundary points x that
+make fθ (x) = 0 strictly hold. Therefore, the proposed method returns input
+points x close to the decision hyperplane as decision boundary points. As a result,
+the remaining two techniques need to consider the influence of finite precision.
+This ensures our model extraction attacks work in practice, for producing a
+(ε, 0)-functionally equivalent model.
+
+
+                                         17
+6.1   Finding Decision Boundary Points
+Let us see how to find decision boundary points under the hard-label setting.
+Fig. 3 shows a schematic diagram in a 2-dimensional input space.
+
+
+
+
+Fig. 3. A schematic diagram of finding decision boundary points. The blue solid line
+stands for the decision hyperplane composed of decision boundary points. The red
+dashed line stands for a direction vector ∆ ∈ Rd0 . The starting point x ∈ Rd0 (i.e.,
+the solid black circle) moves along the direction ∆, and arrives at x + s × ∆ (i.e., the
+hollow black circle) where s ∈ R is the moving stride.
+
+
+     We first randomly pick a starting point x ∈ Rd0 and non-zero direction vector
+∆ ∈ Rd0 . Then let the starting point move along the direction ∆ or the opposite
+direction −∆. It is expected that the starting point will eventually cross the
+decision hyperplane in one direction, as long as ∆ and −∆ are not parallel to
+the decision hyperplane.
+     Denote by s ∈ R the moving stride of the starting point, which means that the
+starting point arrives at x+s×∆. After querying the Oracle with x and x+s×∆,
+if z (fθ (x)) ̸= z (fθ (x + s × ∆)) (i.e., the two labels are different), we know that
+the starting point has crossed the decision hyperplane when the moving stride is
+s. Now, the core of finding decision boundary points is to determine a suitable
+moving stride s, such that the starting point reaches the decision hyperplane,
+i.e., fθ (x + s × ∆) = 0 holds.
+     This task is done by binary search. Concretely, randomly choose two different
+moving strides sslow and sfast at first, such that
+                   z (fθ (x + sslow × ∆)) = z (fθ (x)) ,
+                                                                                       (30)
+                   z (fθ (x + sslow × ∆)) ̸= z (fθ (x + sfast × ∆)) .
+Then, without changing the conditions presented in Eq. (30), we dynamically ad-
+just sslow and sfast until their absolute difference is close to 0, i.e., |sslow − sfast | <
+ϵ where ϵ is a precision defined by the adversary. Finally, return x + sslow × ∆
+as a decision boundary point.
+    Since the precision ϵ is finite, x + sslow × ∆ is not strictly at the decision
+boundary, which will inevitably introduce minor errors (equivalent to noises)
+into the extracted model. If ϵ decreases, then x + sslow × ∆ will be closer to the
+decision boundary, which is helpful to the model extraction attack, refers to the
+experiment results in Section 7.
+
+
+                                            18
+6.2   Filtering Duplicate Affine Transformations
+                                                     Pk
+For a k-deep neural network fθ consisting of n = i=1 di neurons, the idealized
+extraction attack exploits special n + 1 model activation patterns.
+   To ensure that the required n + 1 model activation patterns occur with a
+probability as high as possible, in Step 1 introduced in Section 4, we collect
+M decision boundary points where M ≫ n + 1, e.g., M = cn 2n and cn is a
+small factor. As a result, there are many collected decision boundary points with
+duplicate model activation patterns. Therefore, in Step 2, after recovering the
+parameter tuple (ΓP , BP ) (i.e., the affine transformation) corresponding to each
+decision boundary point, we need to filter the decision boundary points with
+duplicate affine transformations, since their model activation patterns should
+be the same. When filtering duplicate affine transformations, we consider two
+possible cases.
+
+Filtering Correctly Recovered Affine Transformations. In the first case,
+assume that two affine transformations are both correctly recovered.
+   However, recovering affine transformations (i.e., 0-deep neural network ex-
+traction attack) relies on finding decision boundary points, which introduces
+minor errors. This is equivalent to adding noises to the recovered affine trans-
+formations, i.e., the tuples (ΓP , BP ). To check whether two noisy affine trans-
+formations are the same, we adopt the checking rule below.
+
+Comparing two vectors. Consider two vectors with the same dimension, e.g.,
+V 1 ∈ Rd , V 2 ∈ Rd . Set a small threshold φ. If the following d inequations hold
+simultaneously
+                            Vj1 − Vj2 < φ, j ∈ {1, · · · d}                   (31)
+where Vj1 and Vj2 are, respectively, the j-th element of V 1 and V 2 , the two
+vectors are considered to be the same.
+
+ Filtering Wrongly Recovered Affine Transformations. In the second
+case, assume that one affine transformation is correctly recovered and another
+one is partially recovered.
+    For the extraction attack on k-deep neural networks, when recovering the
+affine transformation corresponding to an input by the 0-deep neural network
+extraction attack (see Section 5.1), the process of binary search should not
+change the model activation pattern. Otherwise, the affine transformation may
+be wrongly recovered. Recall that, in the 0-deep neural network extraction at-
+tack, the d0 elements of ΓP are recovered one by one independently. Thus, the
+wrong recovery of one element of ΓP does not influence the recovery of other
+elements.
+    As a result, we have to consider the case that one transformation is partially
+recovered. In this case, the filtering method is as follows. Consider two vectors
+V 1 ∈ Rd and V 2 ∈ Rd . If Vj1 − Vj2 < φ holds for at least (d − dφ ) j’s where
+j ∈ {1, · · · , d} and dφ ∈ N is a threshold, the two vectors are considered to
+be the same. Suppose that the occurrence frequencies of V 1 and V 2 are o1 and
+
+
+                                       19
+o2 respectively, we regard V 1 as the correctly recovered affine transformation if
+o1 ≫ o2 , and vice versa.
+
+6.3     Filtering Functionally Inequivalent Extracted Models
+                                                         Pk
+Consider k-deep neural networks consisting of n = i=1 di neurons. As intro-
+duced in Section 4, each time we randomly choose n + 1 out of N collected
+decision boundary points to generate an extracted model. Moreover, according
+to Section 5.2, in the extraction attack, we need to guess k signs, i.e., the sign
+     (i)
+of Gj , i ∈ {1, · · · , k}.
+    When the model activation patterns of the selected n + 1 decision boundary
+points are not those required in the extraction attack, or at least one of the
+k sign guesses is wrong, the resulting extracted model fθb is not a functionally
+equivalent model of the victim model fθ . Thus, we will get many functionally
+inequivalent extracted models.
+    Besides, due to the minor errors introduced by the finite precision used in
+finding decision boundary points, the parameters of the extracted model may be
+slightly different from the theoretical values (see Eq. (19), Eq. (27), and Eq. (28)).
+This subsection introduces three methods to filter functionally inequivalent ex-
+tracted models, one of which considers the negative influence of finite precision
+together.
+
+Filtering by the Normalized Model Signature. Before introducing the
+filtering method, we discuss how many possible model activation patterns there
+are at most for a k-deep neural network. Lemma 2 answers this question.
+                                                          Pk
+Lemma 2. For a k-deep neural network consisting of n = i=1 di neurons, the
+upper bound of the number of possible model activation patterns is
+                                     !                    
+                         Yk              Xk   i−1
+                                              Y
+                  H=        (2di − 1) +          (2dj − 1),             (32)
+                           i=1                  i=2   j=1
+
+where di is the number of neurons in layer i.
+
+                                                 Pk i.e., the outputs of these neu-
+Proof. If all the di neurons in layer i are inactive,
+rons are 0, then the neuron states of all the j=i+1 dj neurons in the last k − i
+                                                                   Qi−1 activation
+layers are deterministic. In this case, the number of possible model
+patterns is decided by the first i − 1 layers, i.e., the maximum is j=1 (2dj − 1).
+If
+Qktherediis at least one active neuron in each layer, then there are at most
+   i=1 (2 − 1) possible model activation patterns.
+
+    After all the weights Ab(i) and biases bb(i) , i ∈ {1, · · · , k + 1} are obtained, we
+assume that all the H model activation patterns are possible, and compute the
+resulting normalized model signature SθbN . Denote by SθN the normalized model
+signature recovered in Step 2 (see Section 4). If SθN is not a subset of SθbN , we
+regard fθb as a functionally inequivalent model.
+
+
+                                           20
+   Due to the minor errors caused by finite precision, i.e., the slight difference
+between the extracted parameters θb and the theoretical values (see Eq. (19),
+                                                                       N
+Eq. (27), and        when checking whether a tuple (ΓP , BP ) ∈ Sθ is equal
+             Eq. (28)),
+                 bP ∈ S N or not, we adopt the checking rule presented in
+to a tuple ΓbP , B             θb
+Section 6.2, refers to Eq. (31).
+   Besides, the filtering method in Section 6.2 does not ensure that all the
+wrongly recovered affine transformations are filtered. To avoid the functionally
+equivalent model being filtered, we adopt a flexible method.
+   Recall that, in Step 1, we collect a sufficient number of decision boundary
+points. For each tuple (ΓP , BP ) ∈ SθN , denote by mP the frequency that the tuple
+occurs in the collected decision boundary points. Suppose that the number of mP
+where mP > 1 is Nvalid . Then when at least 0.95 × Nvalid tuples (ΓP , BP ) ∈ SθN
+are in the set SθbN , the extracted model fθb is regarded as a candidate of the
+functionally equivalent model. Here, We call the ratio 0.95 × NSvalid   the adaptive
+                                                                 | θN |
+threshold.
+
+Filtering by Weight Signs. After A          b(i) , bb(i) for i ∈ {1, · · · , k+1} are obtained,
+                                   (i)
+we compute the matrices G and check whether the k signs, i.e., the sign of
+                                  b
+  (i)
+Gbj , i ∈ {1, · · · , k} are consistent with the k guesses. If at least one sign is not
+consistent with the guess, the extracted model is not the functionally equivalent
+model.
+     Interestingly, except for handling wrong sign guesses, this method also shows
+high filtering effectiveness when the model activation patterns of the selected
+n + 1 decision boundary points are not those required by our extraction attacks.
+This is not strange, since our extraction attack is designed for a specific set of
+model activation patterns. For wrong model activation patterns, whether the
+           (i)
+sign of Gbj , i ∈ {1, · · · , k} is 1 or −1 is a random event.
+
+Filtering by Prediction Matching Ratio. The above two filtering methods
+are effective, but we find that some functionally inequivalent models still escape
+from the filtering. Therefore, the third method is designed to perform the last
+filtering on extracted models surviving from the above two filtering methods.
+This method is based on the prediction matching ratio.
+
+Prediction Matching Ratio. Randomly generate N1 inputs, query the extracted
+model fθb and the victim model fθ . Suppose that the two models return the
+same hard-label for N2 out of N1 inputs. The ratio NN1 is called the prediction
+                                                      2
+
+
+matching ratio.
+    According to Definition 1 and Definition 2, for a functionally equivalent
+model, the prediction matching ratio should be high, or even close to 100%.
+Note that many random inputs x and corresponding hard-label z (fθ (x)) are
+collected during the attack process (see Steps 1 and 2 in Section 4). Thus, we
+can exploit these inputs.
+
+
+                                              21
+7     Experiments
+Our model extraction attacks are evaluated on both untrained and trained neural
+networks. Concretely, we first perform experiments on untrained neural networks
+with diverse architectures and randomly generated parameters. Then, based on
+two typical benchmarking image datasets (i.e., MNIST, CIFAR10) in visual deep
+learning, we train a series of neural networks as classifiers and evaluate the model
+extraction attacks on these trained neural networks.
+    For convenience, denote by ‘d0 -d1 -· · · -dk+1 ’ the victim model, where di is
+the dimension of each layer. For example, the symbol 1000-1 stands for a 0-deep
+neural network with an input dimension of 1000 and an output dimension of 1.
+
+Partial Universal Experiment Settings. Some settings are used in all the fol-
+lowing experiments. For k-deep neural network extraction attacks, in Step 1, we
+                        n
+     Pk generate 8 × 2 pairs of starting point and moving direction, where
+randomly
+n = i=1 di is the number of neurons. The prediction matching ratio is esti-
+mated over 106 random inputs.
+
+7.1   Computing (ε, 0)-Functional Equivalence
+To quantify the degree to which a model extraction attack has succeeded, the
+method (i.e., error bounds propagation [4]) proposed by Carlini et al. is adopted
+to compute (ε, 0)-functional equivalence.
+
+Error bounds propagation. To compute (ε, 0)-functional equivalence of the
+extracted neural network fθb, one just needs to compare the extracted parame-
+ters (weights Ab(i) and biases bb(i) ) to the real parameters (weights A(i) and biases
+ (i)
+b ) and analytically derive an upper bound on the error when performing in-
+ference [4].
+     Before comparing the neural network parameters, one must ‘align’ them [4].
+This involves two operations: (1) adjusting the order of the neurons in the net-
+work, i.e., the order of the rows or columns of A(i) and b(i) , (2) adjusting the
+values of A(i) and b(i) to the theoretical one (see Eq. (19), Eq. (27), and Eq. (28))
+obtained by the idealized model extraction attacks. This gives an aligned A        e(i)
+      (i)
+and b from which one can analytically derive upper bounds on the error. Other
+     e
+details (e.g., propagating error bounds layer-by-layer) are the same as that in-
+troduced in [4], and not introduced again in this paper.
+
+7.2   Experiments on Untrained Neural Networks
+Table 1 summarizes the experimental results on different untrained neural net-
+works which demonstrates the effectiveness of our model extraction attacks.
+    According to Appendix
+                         B, the computation
+                                               complexity of our model extrac-
+                            n2 +n+k
+tion attack is about O n × 2          , where n is the number of neurons. Thus,
+we limit the number of neurons, which does not influence the verification of our
+
+
+                                          22
+         Table 1. Experiment results on untrained k-deep neural networks.
+
+     Architecture Parameters ϵ         PMR Queries         (ε, 0)  max|θ − θ|b
+                                  −12           19.35       −12.21    −16.88
+         512-2-1       1029     10     100% 2             2         2
+                                10−14 100% 219.59         2−19.84   2−24.62
+                                  −12                        −3.77
+        2048-4-1       8201     10    99.98% 2  23.32
+                                                           2        2−10.44
+                                  −14                       −13.70
+                                10     100% 2   23.51
+                                                          2         2−17.75
+                                  −14                        −2.99
+       25120-4-1      100489 10       99.98% 2  26.42
+                                                           2        2−14.67
+                                10−16 100% 226.67         2−13.01   2−23.19
+       50240-2-1      100485 10−14 99.99% 225.85           2−7.20   2−15.58
+                                  −16                       −14.44
+                                10     100% 2   26.31
+                                                          2         2−22.67
+                                  −12                       −10.99
+        32-2-2-1        75      10     100% 2   17.32
+                                                          2         2−14.78
+                                  −14                       −18.21
+                                10     100% 2   17.56
+                                                          2         2−20.61
+       512-2-2-1       1035     10−12 99.99% 221.39       2−10.34   2−14.01
+                                10−14 100% 221.59         2−14.17   2−17.29
+                                  −12                        −6.10
+      1024-2-2-1       2059     10    99.99% 2  22.38
+                                                           2        2−13.77
+                                  −14                       −14.16
+                                10     100% 2   22.49
+                                                          2         2−20.38
+     ϵ: the precision used to find decision boundary points.
+     max|θ − θ|:
+               b the maximum extraction error of model parameters.
+     PMR: prediction matching ratio.
+
+
+
+model extraction attack. Note that the number of parameters is not limited. All
+the attacks can be finished within several hours on a single core.
+   The results in Table 1 also support our argument in Remark 2. For the 2-
+deep neural networks (e.g., 32-2-2-1), when recovering the weights in layer 1, we
+require that only one neuron in layer 2 is active, instead of all the 2 neurons
+being active. Our extraction attacks also achieve good performance.
+
+
+The influence of the precision ϵ. A smaller ϵ will make the returned point
+x + sslow × ∆ (see Section 6.1) closer to the decision boundary, which helps
+reduce the extraction error of affine transformations. As a result, the model
+extraction attack is expected to perform better. For example, for the 1-deep
+neural network 2048-4-1, when ϵ decreases from 10−12 to 10−14 , the value ε
+(respectively, max|θ − θ|)b decreases from 2−3.77 to 2−13.70 (respectively, from
+ −10.44      −17.75
+2       to 2        ), which is a significant improvement.
+    At the same time, using a smaller precision ϵ does not increase the attack com-
+plexity               According to Appendix B, the query complexity is about
+        significantly.
+                   1
+  
+          n
+O d0 × 2 × log2 . Thus, decreasing ϵ has little influence on the query complex-
+                   ϵ
+
+
+ity. Look at the neural network 2048-4-1 again. When ϵ decreases from 10−12
+to 10−14 , the number of queries only increases from 223.32 to 223.51 . Besides,
+when n (i.e., the number of neurons) is large, ϵ almost does not influence the
+computation complexity, since ϵ only influences Steps 1 and 2 (see Section 4),
+while the computation complexity is mainly determined by other steps (refer to
+Appendix B). When n is small, the practical runtime is determined by the query
+complexity, then decreasing ϵ also has little influence on the runtime.
+
+
+                                        23
+    Choosing an appropriate ϵ is simple. In our experiments, we find that a
+smaller ϵ should be used, when the prediction matching ratio estimated over 106
+random inputs is not 100%, and the gap (e.g., 0.02%, see the third or fifth row)
+is not negligible.
+
+
+7.3   Experiments on Trained Neural Networks
+
+The MNIST and CIFAR10 Dataset. MNIST (respectively, CIFAR10) is
+one typical benchmarking dataset used in visual deep learning. It contains ten-
+class handwriting number gray images [12] (resp., real object images in a realistic
+environment [19]). Each of the ten classes, i.e., ‘0’, ‘1’, ‘2’, ‘3’, ‘4’, ‘5’, ‘6’, ‘7’,
+‘8’, and ‘9’ (resp., airplane, automobile, bird, cat, deer, dog, frog, horse, ship,
+truck), contains 28 × 28 pixel gray images (resp., 32 × 32 pixel RGB images),
+totaling 60000 (resp., 50000) training and 10000 (resp. 10000) testing images.
+
+Neural Network Training Pipelines. When classifying different classes of
+objects, the decision boundary of trained neural networks will be different. To
+fully verify our model extraction attack, for MNIST (respectively, CIFAR10),
+we divide the ten classes into five groups and build a binary classification neural
+network for each group. All the neural networks share the same architecture
+d0 -2-1, where d0 = 28 × 28 for MNIST (respectively, 32 × 32 × 3 for CIFAR10).
+On the MNIST and CIFAR10 datasets, we perform a standard rescaling of the
+pixel values from 0 · · · 255 to 0 · · · 1. For the model training, we choose typical
+settings (the loss is the cross-entropy loss; the optimizer is standard stochastic
+gradient descent; batch size 128). The first four columns of Table 2 summarize
+a detailed description of the neural networks to be attacked in this section.
+
+Experiment Results. The last four columns of Table 2 summarize the ex-
+periment results. Our extraction attack still achieves good performance when an
+appropriate precision ϵ is used, which further verifies its effectiveness.
+    The experimental results presented in Table 1 and Table 2 show that the
+attack performance (i.e., the value of ε and max|θ − θ|)
+                                                     b is related to the precision
+ϵ and the properties of the decision boundary. However, we do not find a clear
+quantitative relationship between the attack performance and the precision ϵ
+(or some unknown properties of the decision boundary). Considering that the
+unknown quantitative relationships do not influence the verification of the model
+extraction attack, we leave the problem of exploring the unknown relationships
+as a future work.
+
+
+8     Conclusion
+
+In this paper, we have studied the model extraction attack against neural net-
+work models under the hard-label setting, i.e., the adversary only has access to
+the most likely class label corresponding to the raw output of neural network
+models. We propose new model extraction attacks that theoretically achieve
+
+
+                                           24
+ Table 2. Experiment results on neural networks trained on MNIST or CIFAR10.
+
+      task     architecture accuracy parameters ϵ         Queries (ε, 0) max|θ − θ|   b
+                                                    −12       20.11   −16.39   −17.85
+   ‘0’ vs ‘1’     784-2-1     0.9035      1573    10        2       2        2
+                                                  10−14 220.32 2−20.56 2−22.81
+   ‘2’ vs ‘3’     784-2-1     0.8497      1573    10−12 220.11      2−7.00   2−7.80
+                                                    −14               −14.32
+                                                  10        2 20.32
+                                                                    2        2−15.06
+                                                    −12               −8.47
+   ‘4’ vs ‘5’     784-2-1     0.8570      1573    10        2 20.02
+                                                                    2        2−8.82
+                                                  10−14 220.32 2−15.62 2−15.81
+   ‘6’ vs ‘7’     784-2-1     0.9290      1573    10−12 220.11      2−7.02   2−7.93
+                                                    −14               −12.00
+                                                  10        2 20.32
+                                                                    2        2−12.91
+                                                    −12               −10.58
+   ‘8’ vs ‘9’     784-2-1     0.9501      1573    10        2 20.11
+                                                                    2        2−11.62
+                                                    −14               −19.63
+                                                  10        2 20.32
+                                                                    2        2−21.72
+  airplane vs    3072-2-1     0.8120      6149    10−12 222.08      2−4.84   2−7.48
+  automobile                                      10−14 222.29 2−12.41 2−15.20
+  bird vs cat    3072-2-1     0.6890      6149    10−12 222.07      2−8.37   2−9.80
+                                                    −14               −12.27
+                                                  10        2 22.29
+                                                                    2        2−14.73
+                                                    −12               −9.55
+  deer vs dog 3072-2-1        0.6870      6149    10        2 22.01
+                                                                    2        2−13.25
+                                                  10−14 222.22 2−13.19 2−15.82
+ frog vs horse 3072-2-1       0.8405      6149    10−12 222.08      2−9.56 2−10.71
+                                                    −14
+                                                  10        2 22.29
+                                                                    2−13.58 2−15.58
+                                                    −12
+ ship vs truck 3072-2-1       0.7995      6149    10        2 22.08
+                                                                    2−8.63   2−8.90
+                                                    −14               −12.95
+                                                  10        2 22.29
+                                                                    2        2−13.02
+ max|θ − θ|: the maximum extraction error of model parameters.
+           b
+ accuracy: classification accuracy of the victim model fθ .
+ for saving space, prediction matching ratios are not listed.
+
+
+
+functionally equivalent extraction. Practical experiments on numerous neural
+network models have verified the effectiveness of the proposed model extraction
+attacks. To the best of our knowledge, this is the first time to prove with practi-
+cal experiments that it is possible to achieve functionally equivalent extraction
+against neural network models under the hard-label setting.
+    The future work will mainly focus on the following aspects:
+
+ – The (computation and query) complexity of our model extraction attack
+   remains high, which limits the application to neural networks with a large
+   number of neurons. Reducing the complexity is an important problem.
+ – In this paper, to recover the weight vector of the j-th neuron in layer i, we
+   require that in layer i, only the j-th neuron is active. However, such a model
+   activation pattern may not occur in some cases. Then how to recover the
+   weight vector of this neuron based on other model activation patterns would
+   be a vital step towards better generality.
+ – Explore possible quantitative relationships between the precision ϵ (or some
+   unknown properties of the decision boundary) and ε (or max|θ − θ|).  b
+ – Extend the extraction attack to the case of vector outputs, i.e., the output
+   dimensionality exceeds 1.
+ – Develop extraction attacks against other kinds of neural network models.
+
+
+                                          25
+Acknowledgments. We would like to thank Adi Shamir for his guidance.
+We would like to thank the anonymous reviewers for their detailed and help-
+ful comments. This work was supported by the National Key R&D Program
+of China (2018YFA0704701, 2020YFA0309705), Shandong Key Research and
+Development Program (2020ZLYS09), the Major Scientific and Technological
+Innovation Project of Shandong, China (2019JZZY010133), the Major Program
+of Guangdong Basic and Applied Research (2019B030302008), the Tsinghua
+University Dushi Program, and the Ministry of Education in Singapore under
+Grant RG93/23. Y. Chen was also supported by the Shuimu Tsinghua Scholar
+Program.
+
+
+A     Proof of Lemma 1
+
+We prove Lemma 1 by Mathematical Induction.
+
+                                                                     b(2) , j ∈
+Proof. When i = 2, according to Lemma 1, the extracted weight vector A j
+{1, · · · , d2 } should be
+              (2)     Pd0      (1) (0)          (2)      Pd0      (1)  (0)
+                                                                            
+              wj,1 ×      v=1 w1,v Cv,1        wj,d1 ×      v=1 wd1 ,v Cv,1
+     b(2) = 
+     A                                  ,··· ,                              
+       j           Pd1      (2) (1)                   Pd1      (2) (1)
+                          w    C
+                      v=1 j,v v,1                            w    C
+                                                         v=1 j,v v,1
+                                                                              (33)
+                  (2)      (1)           (2)         (1)
+               wj,1 × w1,1              wj,d1 × wd1 ,1
+           = P                  ,··· , P                  .
+                 d1     (2) (1)           d1     (2) (1)
+                      w    C
+                 v=1 j,v v,1                   w
+                                          v=1 j,v v,1C
+
+             (0)             (0)
+Note that C1,1 = 1 and Cv,1 = 0 for v ∈ {2, · · · , d0 } .
+   Besides, we have
+                                           h                   i
+                         (1)                 (1)           (1)
+               C (1) = IP A(1) = A(1) = A1 , · · · , Ad0 ,
+                                                                    
+                                               (1)               (1)            (34)
+                                                              A
+               b (1) = I (1) A
+               C                    b(1) =  A1 , · · · ,
+                             b(1) = A                            d0 
+                                                                       .
+                        P                      (1)              (1)
+                                             w1,1            wd0 ,1
+
+                                                          w(1)
+           h                   i
+       (1)   (1)           (1)     (1)    (1)       (1)
+where Av = wv,1 , · · · , wv,d0 , Cv,u = wv,u and C
+                                                  bv,u  = v,u
+                                                           (1) .
+                                                                   wv,1
+    Look at the system of linear equations presented in Eq. (26). Now, the system
+of linear equations is transformed into
+                                               Pd1    (2) (1)
+                                   (2) b (1)     v=1 wj,v Cv,1
+                          Pd1
+                               w
+                        v=1 j,v v,1
+                                b    C      =  Pd1    (2) (1)
+                                                 v=1 wj,v Cv,1
+                       
+                       
+                                             ..
+                       
+                                              .                               (35)
+                                               Pd1    (2) (1)
+                                                     w    C
+                       
+                        d1
+                         P       (2) b (1)      v=1   j,v v,d0
+                        v=1 w
+                               bj,v C  v,d0 = Pd1      (2) (1)
+                                                   v=1 wj,v Cv,1
+
+
+
+
+                                           26
+when d0 ⩾ d1 , by solving the system, it is expected to obtain
+                          (2)   (1)             (2)   (1)
+                                                               
+                         wj,1 w1,1             wj,d1 wd1 ,1
+               b(2) = 
+               A                       ,··· , P               ,,                              (36)
+                 j      Pd1    (2) (1)          d1   (2) (1)
+                         v=1 wj,v Cv,1          v=1 wj,v Cv,1
+
+
+which is consistent with the expected value in Eq. (33).
+    Next, consider the recovery of the weight vector of the j-th neuron in layer
+i, and assume that the weights A               b(i−1) as shown in Lemma 1 have been
+                                b(1) , · · · , A
+obtained. As a result, we have
+           (i−2)      (i−2)                           (i−1)      (i−1)
+         Cj        = Aj       A(i−3) · · · A(1) , Cj          = Aj       A(i−2) · · · A(1) ,
+                                                                (i−2)
+         b (i−2) = A
+                   b(i−2) A
+                          b(i−3) · · · A
+                                       b(1) =      Cv
+         C j         j                        Pdi−3 (i−2) (i−3) ,
+                                               v=1 wj,v Cv,1                                   (37)
+                                                                (i−1)
+         b (i−1) = A
+                   b(i−1) A
+                          b(i−2) · · · A
+                                       b(1) =                  Cv
+         C j         j                                                              .
+                                              Pdi−2          (i−1) (i−2)
+                                                        v=1 wj,v Cv,1
+
+
+    Now, the system of linear equations in Eq. (26) is transformed into
+              P                  (i−1)           Pdi−1 (i) (i−1)
+                 di−1 (i)       C                        wj,u Cu,1
+              
+                u=1  bj,u Pdi−2 u,1
+                      w           (i−1) (i−2)
+                                                = Pdu=1
+                                                     i−1   (i) (i−1)
+                                w       C                wj,u Cu,1
+                                 u,v
+                            v=1           v,1      u=1
+              
+              
+                                         ..
+              
+                                          .                                                    (38)
+              
+                                 (i−1)           Pdi−1 (i) (i−1)
+                d      (i)     C                        wj,u Cu,d
+                                 u,d
+                                                = Pdu=1
+                P i−1
+                      w
+              
+                                    0                             0
+               u=1   bj,u Pdi−2 (i−1)    (i−2)      i−1   (i) (i−1)
+                                    v=1   wu,v   Cv,1            u=1    wj,u Cu,1
+
+
+When d0 ⩾ di−1 , by solving this system, it is expected to obtain
+       h                         i
+ b(i) = w
+ A
+          (i)
+         bj,1 , · · · , w
+                          (i)
+   j                    bj,di−1
+        (i)          Pdi−2 (i−1) (i−2)             (i)       Pdi−2 (i−1) (i−2) 
+         wj,1 ×          v=1   w 1,v  Cv,1        w j,di−1 ×     v=1 wdi−1 ,v Cv,1
+      =          Pdi−1 (i) (i−1)          ,··· ,          Pdi−1 (i) (i−1)         ,
+                      v=1   w    C
+                              j,v v,1                        v=1  w    C
+                                                                    j,v v,1
+
+
+which is consistent with the expected value in Eq. (27).
+
+
+B    Complexity of Hard-Label Model Extraction Attacks
+
+For the k-deep neural network extraction attack, its complexity is composed of
+                              Pk and computation complexity. Suppose that
+two parts: Oracle query complexity
+the number of neurons is n = i=1 di . Its input size, i.e., the size of x is d0 .
+And k is the number of hidden layers. The precision adopted by binary search
+is ϵ (refer to Section 6.1).
+
+
+                                                 27
+Oracle Query Complexity. For the k-deep neural network extraction attack,
+we only query the Oracle in Steps 1 and 2 (see Section 4).
+    In Step 1, if cn × 2n decision boundary points are collected, then the number
+of queries to the Oracle is cϵ × cn × 2n , where cϵ is a factor determined by the
+precision ϵ, and cn is a small factor defined by the attacker. In Step 2, for each
+decision boundary point x collected in Step 1, to recover the corresponding affine
+transformation (i.e., ΓP and BP ), we need to collect another d0 − 1 decision
+boundary points. Therefore, the times of querying the Oracle in this step is
+cϵ × cn × 2n × (d0 − 1). Based on the above analysis, the Oracle query complexity
+of our k-deep neural network extraction attack is cϵ ×cn ×2n ×d  0 . Note that c1ϵis
+                     1
+proportional to log2 . Thus, the query complexity is about O d0 × 2n × log2ϵ .
+                     ϵ
+
+
+
+
+Computation Complexity. For the k-deep neural network extraction attack,
+when n is large, most computations are occupied by recovering neural network
+parameters, i.e., Steps 3 and 4 (see Section 4). Suppose that there are N ⩽
+cn × 2n decision boundary points used to recover neural network parameters
+after filtering duplicate affine transformations in Step 2.
+    In Step 3, to recover the weight vector of the j-th neuron in layer i where
+i ∈ {2, · · · , k +1}, we need to solve a system of linear equations. For convenience,
+let us ignore the difference in the sizes of the different systems ofPlinear equations.
+                                                                         k+1
+Then, to recover all the weights A(i) , a total of n + 1 − d1 = i=2 di systems
+of linear equations need to be solved. In Step 4, to recover all the biases b(1) ,
+only one system of linear equations needs to be solved. Therefore, to obtain an
+extracted model, we need to solve n + 2 − d1 systems of linear equations.
+    There are two loops in the extraction attack. First, we need to select n + 1
+out of N decision boundary points each time. More concretely, to recover the
+weights A(i) in layer i, we choose di decision boundary points. Then the number
+(denoted by l1 ) of possible cases is
+                                              Pk−1 
+            N
+                     × N d−d     × · · · × N − dki=1 di × N −n   ≈ N n+1 , for N ≫ n.
+                                                             
+     l1 =   d1             2
+                             1
+                                                            1
+
+Second, we need to guess k signs when recovering all the weights, i.e., there are
+2k cases.                                                                
+   Thus, the computation complexity is about O l1 × 2k × (n + 2 − d1 ) . When
+an appropriate precision ϵ (i.e., ϵ is small) is adopted, we have N ≈ H < 2n ,
+where H is the number of possible model activation patterns (refer to Lemma 2).
+Then, we further have
+
+           l1 × 2k × (n + 2 − d1 ) ≈ N n+1 × 2k × n ≈ n × 2n(n+1)+k .                   (39)
+                                                     2
+                                                            
+Thus, the computation complexity is about O n × 2n +n+k .
+
+
+C    Extraction on 1-Deep Neural Networks
+The parameters of the extracted 1-deep neural network are as follows.
+
+
+                                              28
+                                                                    
+                                               (1)              (1)
+          h                         i        w i,1            w i,d0 
+  b(1) = w
+  A
+               (1)
+             bi,1 , · · · , w
+                               (1)
+                             bi,d0 =               ,··· ,              , i ∈ {1, · · · , d1 },
+    i                                          (1)               (1)
+                                             wi,1             wi,1
+                                                                  
+                                          (1)               (1)
+             (1)            (1)         b                 b
+  bb(1) = [bb , · · · , bb ] =  1 , · · · , d1  ,
+             1              d1             (1)             (1)
+                                        w1,1             wd1 ,1
+                                                                                                   (40)
+                                                 (2)    (1)                   (2)     (1)
+          h                        i           w1 w1,1                      wd1 wd1 ,1
+  b(2) = w     (2)             (2)
+  A          b1 , · · · , w  bd1 =  P                             ,··· , P                     ,
+                                               d1     (2) (1)                d1     (2) (1)
+                                               i=1 iw    w   i,1             i=1 iw     w  i,1
+                      (2)
+   bb(2) =     b
+           Pd1 (2) (1) .
+            i=1 wi wi,1
+
+  Fig. 4 shows a diagram of a victim model (2-2-1) and the extracted model.
+
+
+
+
+         Fig. 4. Left: the victim model fθ . Right: the extracted model fθb.
+
+
+
+
+References
+1. Batina, L., Bhasin, S., Jap, D., Picek, S.: CSI NN: reverse engineering of neu-
+   ral network architectures through electromagnetic side channel. In: Heninger, N.,
+   Traynor, P. (eds.) USENIX Security 2019. pp. 515–532. USENIX Association
+2. Blum, A., Rivest, R.L.: Training a 3-node neural network is np-complete. In: Han-
+   son, S.J., Remmele, W., Rivest, R.L. (eds.) Machine Learning: From Theory to
+   Applications - Cooperative Research at Siemens and MIT. LNCS, vol. 661, pp.
+   9–28. Springer (1993)
+3. Canales-Martı́nez, I., Chávez-Saab, J., Hambitzer, A., Rodrı́guez-Henrı́quez, F.,
+   Satpute, N., Shamir, A.: Polynomial time cryptanalytic extraction of neural net-
+   work models. IACR Cryptol. ePrint Arch. p. 1526 (2023)
+4. Carlini, N., Jagielski, M., Mironov, I.: Cryptanalytic extraction of neural network
+   models. In: Micciancio, D., Ristenpart, T. (eds.) CRYPTO 2020. LNCS, vol. 12172,
+   pp. 189–218. Springer
+
+
+                                                   29
+ 5. Carlini, N., Wagner, D.A.: Towards evaluating the robustness of neural networks.
+    In: SP 2017. pp. 39–57. IEEE Computer Society
+ 6. Dubey, S.R., Singh, S.K., Chaudhuri, B.B.: Activation functions in deep learning:
+    A comprehensive survey and benchmark. Neurocomputing 503, 92–108 (2022)
+ 7. Fefferman, C.: Reconstructing a neural net from its output. Revista Matematica
+    Iberoamericana 10, 507–555 (1994)
+ 8. Galstyan, A., Cohen, P.R.: Empirical comparison of ”hard” and ”soft” label prop-
+    agation for relational classification. In: Blockeel, H., Ramon, J., Shavlik, J.W.,
+    Tadepalli, P. (eds.) ILP 2007. LNCS, vol. 4894, pp. 98–111. Springer
+ 9. Ganju, K., Wang, Q., Yang, W., Gunter, C.A., Borisov, N.: Property inference
+    attacks on fully connected neural networks using permutation invariant represen-
+    tations. In: Lie, D., Mannan, M., Backes, M., Wang, X. (eds.) CCS 2018. pp.
+    619–633. ACM
+10. Han, S., Pool, J., Tran, J., Dally, W.J.: Learning both weights and connections for
+    efficient neural network. In: Cortes, C., Lawrence, N.D., Lee, D.D., Sugiyama, M.,
+    Garnett, R. (eds.) NeurIPS 2015. pp. 1135–1143
+11. Jagielski, M., Carlini, N., Berthelot, D., Kurakin, A., Papernot, N.: High accuracy
+    and high fidelity extraction of neural networks. In: Capkun, S., Roesner, F. (eds.)
+    USENIX Security 2020. pp. 1345–1362. USENIX Association
+12. LeCun, Y., Bottou, L., Bengio, Y., Haffner, P.: Gradient-based learning applied to
+    document recognition. Proc. IEEE 86(11), 2278–2324 (1998)
+13. Long, C., Collins, R., Swears, E., Hoogs, A.: Deep neural networks in fully con-
+    nected CRF for image labeling with social network metadata. In: WACV 2019. pp.
+    1607–1615. IEEE
+14. Lowd, D., Meek, C.: Adversarial learning. In: Grossman, R., Bayardo, R.J., Ben-
+    nett, K.P. (eds.) SIGKDD 2005. pp. 641–647. ACM
+15. Nair, V., Hinton, G.E.: Rectified linear units improve restricted Boltzmann ma-
+    chines. In: Fürnkranz, J., Joachims, T. (eds.) ICML, 2010. pp. 807–814. Omnipress
+16. Oliynyk, D., Mayer, R., Rauber, A.: I know what you trained last summer: A
+    survey on stealing machine learning models and defences. ACM Comput. Surv.
+    55(14s), 324:1–324:41 (2023)
+17. Perazzi, F., Wang, O., Gross, M.H., Sorkine-Hornung, A.: Fully connected object
+    proposals for video segmentation. In: ICCV 2015. pp. 3227–3234. IEEE Computer
+    Society
+18. Rolnick, D., Kording, K.P.: Reverse-engineering deep relu networks. In: ICML 2020.
+    Proceedings of Machine Learning Research, vol. 119, pp. 8178–8187. PMLR
+19. Torralba, A., Fergus, R., Freeman, W.T.: 80 million tiny images: A large data set
+    for nonparametric object and scene recognition. IEEE Trans. Pattern Anal. Mach.
+    Intell. 30(11), 1958–1970 (2008)
+20. Tramèr, F., Zhang, F., Juels, A., Reiter, M.K., Ristenpart, T.: Stealing machine
+    learning models via prediction apis. In: Holz, T., Savage, S. (eds.) USENIX Security
+    2016. pp. 601–618. USENIX Association
+
+
+
+
+                                          30
+

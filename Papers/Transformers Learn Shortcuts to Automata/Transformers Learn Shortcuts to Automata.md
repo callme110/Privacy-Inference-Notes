@@ -7,512 +7,538 @@ authors:
   - "Akshay Krishnamurthy"
   - "Cyril Zhang"
 publication:
-  - "ICLR 2023"
-  - "notable top 5%"
+  - "arXiv:2210.10749v2"
+  - "Preprint, revised 2023-05-02"
 tags:
   - paper-note
   - transformer
   - automata
-  - algorithmic-reasoning
-  - circuit-complexity
   - shortcut-learning
-description: "从半自动机、变换半群和电路复杂度出发，解释浅层 Transformer 如何并行模拟递归计算，以及这种 shortcut 为何具有分布外脆弱性。"
+  - algorithmic-reasoning
+  - finite-state-machine
+  - semigroup-theory
+  - circuit-complexity
+  - out-of-distribution-generalization
+  - type/论文
+description: "图文版阅读笔记：解释浅层非递归 Transformer 如何学习有限状态自动机的 shortcut solution，以及这种捷径为什么既能高效模拟算法，又会带来分布外和长度泛化脆弱性。"
 source: "https://arxiv.org/abs/2210.10749"
-openreview: "https://openreview.net/forum?id=De4FYqjFueZ"
-local_pdf: "../2210.10749v2.pdf"
+local_pdf: "./Transformers Learn Shortcuts to Automata.pdf"
+status: "图文阅读笔记"
+created: "2026-06-27"
+note_folder: "Transformers Learn Shortcuts to Automata"
 ---
 
 # Transformers Learn Shortcuts to Automata
 
-原论文链接：[arXiv:2210.10749](https://arxiv.org/abs/2210.10749) · [ICLR 2023 页面](https://iclr.cc/virtual/2023/poster/11118) · [OpenReview](https://openreview.net/forum?id=De4FYqjFueZ) · [本地 PDF](../2210.10749v2.pdf)
+原论文链接：[arXiv:2210.10749](https://arxiv.org/abs/2210.10749)
 
-上位地图：[[Transformer]] · [[Algorithmic Reasoning]] · [[Automata Theory]] · [[Circuit Complexity]]
+本地 PDF：[Transformers Learn Shortcuts to Automata.pdf](./Transformers%20Learn%20Shortcuts%20to%20Automata.pdf)
+
+上位地图：[[MOC - 计算机]] · [[Transformer Mechanistic Understanding]] · [[Algorithmic Reasoning]]
+
+相关主题：[[Finite-State Automata]]、[[Semiautomata]]、[[Shortcut Learning]]、[[Circuit Complexity]]、[[Krohn-Rhodes Theory]]、[[OOD Generalization]]、[[Length Generalization]]
 
 ### Abstract
 
-论文研究了一个表面上的矛盾：许多算法天然需要逐步更新状态，类似 RNN 的递归过程；但是 Transformer 没有显式递归结构，却常常可以用远少于推理步数的层数完成任务。
+这篇论文研究一个看似反直觉的问题：**Transformer 没有显式 recurrence，却能在很多算法推理任务上用远少于序列长度 \(T\) 的层数完成本来应该逐步迭代的计算。它到底学到了什么？**
 
-作者将问题收缩到有限状态半自动机（semiautomata）：给定长度为 $T$ 的输入序列，系统按照状态转移函数逐步更新状态。论文证明，浅层 Transformer 不必像 RNN 那样老老实实执行 $T$ 次转移，而可以把递归动力学重新参数化为并行计算：
+作者把问题压到一个干净的对象上：有限状态自动机的底层动力学，也就是 **semiautomata**。一个 semiautomaton 可以写成：
 
-- 任意有限状态半自动机都存在深度为 $O(\log T)$ 的 Transformer 模拟器。
-- 对可解（solvable）半自动机，存在深度与序列长度 $T$ 无关的 $O(1)$ 深度模拟器。
-- 对一维 Gridworld 这一特殊类别，存在深度为 2 的更短 shortcut。
-- 对不可解（non-solvable）半自动机，若仍希望使用与 $T$ 无关的常数深度 Transformer，则会碰到电路复杂度中的重大开放问题：除非 $\mathrm{TC}^0 = \mathrm{NC}^1$。
+$$
+A=(Q,\Sigma,\delta),
+$$
 
-实验发现，标准梯度训练确实能找到 shortcut。但这种 shortcut 可能只在训练分布内表现良好；当输入分布或序列长度改变时，它比递归解更脆弱。
+其中 \(Q\) 是有限状态集合，\(\Sigma\) 是输入字母表，\(\delta:Q\times\Sigma\to Q\) 是状态转移函数。给定输入序列 \(\sigma_1,\ldots,\sigma_T\)，状态按递归规则更新：
 
-#### 一句话结论
+$$
+q_t=\delta(q_{t-1},\sigma_t).
+$$
 
-Transformer 可以像并行前缀扫描（parallel prefix scan）一样，把一条长度为 $T$ 的递归状态链压缩成少量并行层；这种计算加速并非免费午餐，它可能把“逐步跟踪状态”替换成“统计中间变量后一次性解码”，从而牺牲分布外泛化。
+如果用 RNN 来做，这个递推非常自然：每一步吃一个 token，更新一次 hidden state。RNN 像沿着台阶一级一级上楼，计算深度自然是 \(\Theta(T)\)。而 Transformer 没有这种逐步更新结构，它更像把整段楼梯铺在桌面上，一次性看见所有台阶，然后试图找一条“斜切”的捷径。
 
-#### 所要解决的问题
+论文的核心观点是：Transformer 往往不是朴素地模拟 recurrence，而是在学习 **shortcut solutions**。所谓 shortcut，并不是“投机取巧”的贬义，而是指用浅层并行电路重参数化整个递归过程：
 
-- 一个没有显式 recurrence 的浅层 Transformer，如何执行看似必须逐步运行的算法？
-- Transformer 学到的是逐步状态转移，还是一种跳过中间步骤的 shortcut？
-- 哪些有限状态计算总能被并行化到 $O(\log T)$ 深度？
-- 哪些计算还能进一步压缩到 $O(1)$ 深度？
-- shortcut 的表示能力、可学习性与分布外泛化能力是否一致？
+$$
+D(f_T)=o(T),
+$$
+
+也就是模型深度严格小于线性序列长度。作者证明：
+
+1. 所有有限状态自动机都存在 \(O(\log T)\) 深度的 Transformer shortcut；
+2. 对一大类可解的 semiautomata，甚至存在与 \(T\) 无关的常数深度 shortcut；
+3. 对一维 gridworld，存在极短的 depth-2 shortcut；
+4. 但非可解结构一般不能被常数深度 Transformer 模拟，除非复杂度理论中的 \(TC^0=NC^1\) 这类重大开放问题坍塌。
+
+实验部分进一步显示：标准训练确实能让 Transformer 学到这些 shortcut，在许多自动机任务上达到接近 100% 的 in-distribution accuracy；但这些 shortcut 往往很脆，对分布偏移、稀疏监督和更长序列泛化表现不如 RNN 或带 scratchpad 的递归式解法。
+
+一句话概括：
+
+> Transformer 可以把“逐步执行的有限状态算法”重写成“浅层并行电路”，但这种重写带来的高效性不自动等价于真正稳健的算法泛化。
 
 ### Knowledge
 
-#### 1. 半自动机：只有动力学，没有最终输出解释器
+#### 1. Semiautomata：只保留“状态如何变”的自动机骨架
 
-一个半自动机写作：
-
-$$
-\mathcal{A} = (Q, \Sigma, \delta),
-$$
-
-其中：
-
-- $Q$ 是有限状态集合；
-- $\Sigma$ 是输入字母表；
-- $\delta: Q \times \Sigma \rightarrow Q$ 是状态转移函数。
-
-给定初始状态 $q_0$ 和输入序列 $(\sigma_1,\ldots,\sigma_T)$，状态轨迹满足：
+普通 finite-state automaton 通常包含状态、输入、转移、接受状态或输出规则。Semiautomaton 更像自动机的“发动机”：它只关心状态如何随输入变化，不关心最终是否 accept 或输出什么标签。
 
 $$
-q_t = \delta(q_{t-1}, \sigma_t), \qquad t = 1,\ldots,T.
+A=(Q,\Sigma,\delta),\qquad
+\delta:Q\times\Sigma\to Q.
 $$
 
-半自动机可以被理解为一个只负责“更新内部状态”的控制器。普通有限状态自动机（automaton）在此基础上还带有输出映射或接受状态集合，用来解释状态的含义。两者的差别类似于：
+论文用很多例子说明这种对象足够表达常见的算法推理结构：parity counter、memory unit、gridworld、二维 gridworld，甚至 Rubik's Cube 的巨大非交换 transformation semigroup。
 
-- **半自动机**：只描述发动机如何运转；
-- **自动机**：发动机加上仪表盘，能够将内部状态映射为可观察输出。
+![Fig.1: semiautomata examples](images/figure-01-semiautomata-examples.png)
 
-![Figure 1：半自动机示例，包括奇偶计数器、记忆单元、Gridworld 与魔方变换群](images/figure-01-semiautomata-examples.png)
+这里最重要的直觉是：semiautomaton 是一个**有限记忆的算法**。Parity counter 只记“当前是奇数还是偶数”；gridworld 只记“当前位置”；括号匹配的有界版本只记“当前栈状态”。这些任务不像普通分类任务那样只看局部模式，而是需要在长序列上持续维护状态。
 
-图 1 展示了从简单到复杂的动力学：
+#### 2. 为什么 Transformer 能绕开 recurrence？
 
-- parity counter 只有“偶数 / 奇数”两个状态；
-- memory unit 可以保存最近一次写入的信息；
-- 一维和二维 Gridworld 记录位置；
-- 魔方旋转对应大型非阿贝尔群，说明有限状态系统并不等于“玩具问题”。
-
-#### 2. 从逐步状态更新到变换复合
-
-对每一个输入符号 $\sigma \in \Sigma$，都可以定义一个作用于状态集合的函数：
+逐步递推可以写成函数复合：
 
 $$
-\tau_{\sigma}: Q \rightarrow Q, \qquad \tau_{\sigma}(q) = \delta(q,\sigma).
-$$
-
-于是状态 $q_t$ 不必只被看作“前一个状态经过一步更新后的结果”，还可以写成一串函数复合：
-
-$$
-q_t =
-\left(
-\tau_{\sigma_t}
-\circ
-\tau_{\sigma_{t-1}}
-\circ \cdots \circ
-\tau_{\sigma_1}
-\right)(q_0).
-$$
-
-这一步视角转换是全文的核心。RNN 直接携带状态 $q_t$ 向前走；Transformer 则可以先并行计算“多步转移函数的组合”，再将组合后的变换施加到 $q_0$ 上。
-
-一个直观类比是：
-
-- **RNN** 像逐站乘坐地铁，每到一站才知道下一站；
-- **Transformer shortcut** 像先把若干段线路图合并成换乘表，再用树状归并快速算出每个位置对应的最终站点。
-
-#### 3. 变换半群：自动机背后的代数指纹
-
-所有由 $\{\tau_{\sigma} : \sigma \in \Sigma\}$ 经过函数复合生成的状态变换，构成变换半群（transformation semigroup）：
-
-$$
-\mathcal{T}(\mathcal{A})
+q_t
 =
-\left\langle
-\tau_{\sigma} : \sigma \in \Sigma
-\right\rangle.
+\delta_{\sigma_t}\circ\delta_{\sigma_{t-1}}\circ\cdots\circ\delta_{\sigma_1}(q_0),
 $$
 
-这里的“半群”表示集合上存在满足结合律的运算。对本文而言，运算就是函数复合。几个相邻概念需要区分：
+其中
 
-| 结构 | 额外要求 | 直观解释 |
+$$
+\delta_{\sigma}(\cdot):=\delta(\cdot,\sigma).
+$$
+
+RNN 的自然做法是从左到右逐个复合。Transformer 的 shortcut 思路则是：不要先算 \(q_1\)、再算 \(q_2\)、再算 \(q_3\)，而是先把每个输入符号对应的 transition function 编码出来，再用并行前缀计算或代数分解来组合这些函数。
+
+这像做加法：
+
+- 串行做法：从左到右一个数一个数累加；
+- 并行 shortcut：先两两相加，再四个一组，再八个一组，深度从 \(T\) 降到 \(\log T\)；
+- 更激进的 shortcut：如果结构特殊，比如模计数，可以一次性做 prefix sum，再用一个非线性模块取模。
+
+![Fig.2: theoretical shortcut constructions](images/figure-02-theoretical-shortcut-constructions.png)
+
+图 2 是整篇论文理论框架最重要的图：
+
+- (a) divide-and-conquer composition：用分治方式组合 transition functions，得到 \(O(\log T)\) 深度；
+- (b) Krohn-Rhodes decomposition 的两个“原子”：modular counter 和 resettable memory；
+- (c) cascade product：把这些原子像流水线一样粘起来；
+- (d) gridworld 的更短 shortcut：attention 可以做 nearest boundary detector。
+
+#### 3. Shortcut solution 不是普通 memorization
+
+论文定义 shortcut solution 时要求：
+
+$$
+D(f_T)=o(T).
+$$
+
+但如果只要求深度小，很容易出现无意义解：例如用常数深度网络记住所有 \(|\Sigma|^T\) 个输入序列。这不是作者想讨论的 shortcut。论文关心的是**宽度、参数量、权重范数、精度也要合理增长**的浅层模拟。
+
+一个必要区分：
+
+| 概念 | 直观含义 | 是否是本文关心的 shortcut |
 | --- | --- | --- |
-| Semigroup | 结合律 | 一组可以持续复合的操作 |
-| Monoid | Semigroup + 单位元 | 除了操作外，还有“什么都不做” |
-| Group | Monoid + 每个元素可逆 | 每个动作都可以撤销 |
-| Abelian group | Group + 交换律 | 动作先后顺序可以交换 |
+| brute-force memorization | 把所有输入到输出的表格背下来 | 否 |
+| chunked simulation | 每层模拟一大块 recurrence，但宽度指数爆炸 | 通常否 |
+| parallel prefix / algebraic decomposition | 利用自动机转移结构重写计算 | 是 |
+| learned statistical hack | 只适配训练分布的伪规律 | 实验中可能出现，需要警惕 |
 
-半群比群更一般，因为自动机中的状态更新未必可逆。例如，“将内存重置为 0”会抹去历史信息，无法从结果反推出之前的状态。
+Shortcut 更像“换一种算法实现同一个函数”。它可能非常聪明，也可能非常脆弱。论文的价值正在于把这两面同时展示出来。
 
-#### 4. Shortcut：计算深度小于显式递归深度
+#### 4. Transformation semigroup：输入符号生成的“动作集合”
 
-论文将 shortcut 定义为一族模拟器 $\{f_T\}_{T \geq 1}$。若 $f_T$ 可以模拟长度为 $T$ 的半自动机轨迹，并且网络深度满足：
-
-$$
-D(f_T) = o(T),
-$$
-
-则称其为 shortcut solution。
-
-这里的 $o(T)$ 表示深度增长速度严格慢于线性增长。最典型的例子是：
+每个输入符号 \(\sigma\) 都定义一个状态变换：
 
 $$
-O(\log T) \ll O(T).
+\delta(\cdot,\sigma):Q\to Q.
 $$
 
-需要注意，shortcut 是一个**计算复杂度定义**，并不自动意味着“模型投机取巧”。但是，论文后半部分进一步说明：计算意义上的 shortcut 可能演变为统计意义上的 shortcut。
-
-#### 5. Parallel prefix scan：为什么 $O(\log T)$ 合理
-
-函数复合满足结合律：
+所有这些变换在函数复合下生成一个 transformation semigroup：
 
 $$
-(f \circ g) \circ h = f \circ (g \circ h).
+T(A)=\langle \delta(\cdot,\sigma):\sigma\in\Sigma\rangle.
 $$
 
-因此，一串长度为 $T$ 的变换可以用分治树并行归并。若每一层把相邻区间合并，区间长度将按 $1,2,4,8,\ldots$ 增长，所需层数为：
+如果把状态空间 \(Q\) 想成一个棋盘，输入符号就是棋子移动规则。Semigroup 就是“所有规则反复组合后能产生的动作集合”。它不一定有逆操作，所以比 group 更一般；如果每个动作都可逆，就接近 permutation group。
+
+这点很关键：Transformer 学的不是单步规则本身，而可能是这个 semigroup 的全局代数结构。也就是说，它可能不是“像 RNN 一样走路”，而是在学习一张关于所有可组合动作的高速公路图。
+
+### Overview
+
+#### 理论问题：浅层 Transformer 能否模拟递归计算？
+
+经典 recurrence：
 
 $$
-\lceil \log_2 T \rceil.
+q_t=\delta(q_{t-1},\sigma_t)
 $$
 
-这与并行算法中的 prefix sum 或 scan 是同一种结构。区别在于，普通 prefix sum 合并的是数字加法；本文合并的是有限状态变换的函数复合。
-
-#### 6. Krohn-Rhodes：自动机版本的“质因数分解”
-
-Krohn-Rhodes 理论可以将有限半自动机分解为更简单的构件，再通过 cascade product 串接起来。本文最重要的两类“原子构件”是：
-
-- modular counters：模加法计数器；
-- resettable memory units：可以按条件重置的记忆单元。
-
-整数 $60$ 可以分解为 $2^2 \times 3 \times 5$。Krohn-Rhodes 分解提供了类似的直觉：复杂自动机也可以被拆成有限状态动力学中的基本部件。但这种类比不能被过度延伸，因为半群分解比整数质因数分解复杂得多，而且论文使用的存在性分解并不等于一个易于执行的搜索算法。
-
-![Figure 2：理论构造的直觉，包括分治复合、模加法、记忆单元、cascade product 与 Gridworld shortcut](images/figure-02-theory-constructions.png)
-
-#### 7. “可解”不等于“容易求解”
-
-可解群（solvable group）具有严格的代数含义：它可以通过一系列正规子群逐层拆解，直到每一层商群都足够简单。对有限可解群，这些简单因子最终是素数阶循环群。
-
-因此：
-
-- **solvable** 描述的是代数分解结构；
-- **learnable** 描述的是训练算法能否从数据找到对应参数；
-- **generalizable** 描述的是模型能否迁移到未见分布或更长序列。
-
-三者不是同一个问题。论文的理论首先处理 representability，再用实验研究 learnability 与 generalization。
-
-#### 8. 电路复杂度：深度为何是一种资源
-
-论文使用电路复杂度解释 Transformer 深度边界：
+看起来天然要求 \(T\) 步。论文问的是：如果一个模型能同时看到 \(\sigma_1,\ldots,\sigma_T\)，是否能用少很多层直接输出：
 
 $$
-\mathrm{NC}^0
-\subset
-\mathrm{AC}^0
-\subset
-\mathrm{ACC}^0
-\subseteq
-\mathrm{TC}^0
-\subseteq
-\mathrm{NC}^1.
+(q_1,\ldots,q_T)?
 $$
 
-| 复杂度类 | 主要特征 | 与本文的联系 |
-| --- | --- | --- |
-| $\mathrm{AC}^0$ | 常数深度、无界 fan-in AND/OR | 无法表示 parity |
-| $\mathrm{ACC}^0$ | 在 $\mathrm{AC}^0$ 上增加 $\mathrm{MOD}_m$ 门 | 可表达模计数器 |
-| $\mathrm{TC}^0$ | 增加 majority / threshold 门 | 可表达更强的常数深度阈值计算 |
-| $\mathrm{NC}^1$ | $O(\log T)$ 深度、常数 fan-in | 覆盖高效并行计算 |
+作者的答案是：可以，而且经常可以。
 
-fan-in 可以理解为一个门同时读取多少个输入。无界 fan-in 像一个会议室中允许所有人同时投票；常数 fan-in 则像每次只能两两合并意见。后者若要聚合 $T$ 个输入，通常需要树状的 $O(\log T)$ 层。
+#### 实验问题：SGD 会不会真的找到这些 shortcut？
 
-### Theory
+理论只说明参数空间里存在解，不说明训练会找到。实验部分训练 GPT-2-like Transformer 去预测自动机的完整状态序列，并和不同深度 \(L\) 比较：
 
-#### Theorem 1：任意半自动机都可以做对数深度并行模拟
+![Fig.3: in-distribution shortcut learning](images/figure-03-indistribution-shortcut-learning.png)
 
-任意半自动机 $\mathcal{A}=(Q,\Sigma,\delta)$ 在长度 $T$ 上都可以由 Transformer 模拟，其复杂度满足：
+从 Figure 3 可以读出三个信息：
 
-$$
-\text{depth} = O(\log T),
-$$
+1. 许多任务一两层就能接近 100%，说明 Transformer 确实能学到浅层 shortcut；
+2. 更复杂的非交换群任务，如 \(A_5,S_5\)，需要更深网络；
+3. 训练曲线并不稳定，同一个任务不同随机种子可能差异很大。
 
-$$
-\text{embedding dimension} = O(|Q|),
-$$
+附录完整最大准确率图进一步显示：随着层数增加，大部分任务都能达到很高 in-distribution accuracy，但 \(S_5\) 这类非可解结构明显更难。
 
-$$
-\text{attention width} = O(|Q|),
-$$
+![Fig.8: complete maximum accuracy over 20 runs](images/figure-08-complete-max-accuracy.png)
 
-$$
-\text{MLP width} = O(|Q|^2).
-$$
+#### 机制证据：attention head 学到 nearest boundary detector
 
-核心机制是分治式函数复合。每个 token 首先表示一个局部状态变换，然后注意力层按树状结构逐层组合更长区间的变换。
+对一维 gridworld，理论构造认为模型可以先计算 prefix displacement，再找到最近的边界状态，边界之后的历史可以被“重置”掉。实验中，作者可视化 attention head，确实看到一些 head 在关注最近边界：
 
-#### Theorem 2：可解半自动机存在常数深度 shortcut
+![Fig.4: attention boundary detector](images/figure-04-attention-boundary-detector.png)
 
-对可解半自动机，Transformer 可以利用 Krohn-Rhodes 分解，将系统拆成 modular counters 与 memory units，再通过 cascade product 拼接。所得深度依赖 $|Q|$，但不依赖序列长度 $T$：
+更完整的 attention heads 全景图如下。亮黄色竖线对应高 attention score，灰白竖条标记边界状态；某些 head 的高亮位置与边界位置高度一致。
 
-$$
-\text{depth} = O(|Q|^2 \log |Q|).
-$$
+![Fig.9: all attention heads on Grid9](images/figure-09-all-attention-heads-grid9.png)
 
-这里存在一个容易忽略的限制：常数深度并不等于低成本。论文给出的宽度界仍可能随 $|Q|$ 指数增长，并且某些 MLP 宽度项随 $T$ 增长。若允许周期激活函数，例如：
+这不是完整的 mechanistic proof，但它说明至少在 gridworld 任务上，训练出来的解与理论 shortcut 有相当强的结构对齐。
+
+### Main Results
+
+#### Theorem 1：所有 semiautomata 都有 \(O(\log T)\) shortcut
+
+任意有限状态自动机都能被 Transformer 用对数深度模拟：
 
 $$
-x \mapsto \sin(x),
+D=O(\log T).
 $$
 
-则模运算可以更紧凑地实现。标准 ReLU 网络则往往需要通过更宽的网络记忆取模映射。
-
-#### Theorem 3：一维 Gridworld 存在深度为 2 的 shortcut
-
-Gridworld 的状态是一维线段上的位置，输入是“若可能则向左走”或“若可能则向右走”。边界会截断移动，因此它不是简单的整数求和。
-
-论文构造了一个两层 shortcut：
-
-1. 第一层并行计算前缀位移；
-2. 第二层寻找最近一次触碰边界的位置，并据此恢复当前状态。
-
-在允许 max-pooling 的条件下：
+直觉是 parallel prefix。每个输入符号先变成一个状态变换，接着两两合并、四四合并、八八合并，直到得到所有 prefix composition。它类似并行扫描算法：
 
 $$
-\text{depth}=2,
-\qquad
-\text{embedding dimension}=O(1),
-\qquad
-\text{attention width}=O(n),
-\qquad
-\text{MLP width}=O(T).
+(\delta_{\sigma_1},\delta_{\sigma_2},\ldots,\delta_{\sigma_T})
+\quad\leadsto\quad
+(\delta_{\sigma_1},\delta_{\sigma_2}\circ\delta_{\sigma_1},\ldots,\delta_{\sigma_T}\circ\cdots\circ\delta_{\sigma_1}).
 $$
 
-#### Theorem 4：不可解半自动机的常数深度障碍
+该结果说明 recurrence 并不等于必须线性深度；很多 sequential computation 可以被并行电路重排。
 
-若半自动机不可解，则在足够大的 $T$ 下，不存在同时满足以下条件的 Transformer：
+#### Theorem 2：可解 semiautomata 有常数深度 shortcut
 
-- 深度与 $T$ 无关；
-- 宽度至多为 $T$ 的多项式；
-- 数值精度为 $O(\log T)$；
-- 可以连续模拟该半自动机。
-
-除非：
+对 solvable semiautomata，作者借助 Krohn-Rhodes decomposition 证明存在 depth 与 \(T\) 无关的 Transformer shortcut。形式上深度依赖 \(|Q|\)，而非序列长度：
 
 $$
-\mathrm{TC}^0 = \mathrm{NC}^1.
+D=O(|Q|^2\log |Q|).
 $$
 
-这一结论将模型表达能力边界连接到经典电路复杂度开放问题。最小的不可解群是 $A_5$，即 5 个元素的偶置换群，共有 60 个元素。
+这里的“solvable”来自群论。粗略说，如果一个群可以被逐层拆成比较简单的阿贝尔因子，它就是 solvable group。类比整数分解，Krohn-Rhodes 理论说很多自动机的行为可以拆成 modular counters 和 resettable memories 的级联。
+
+一个重要但容易忽略的点：**这个构造是存在性结果，不等于给出了训练算法**。它像告诉读者“这座山一定有一条短路”，但没有直接给 GPS。实验发现 SGD 经常能找到短路，这反而是更惊人的部分。
+
+#### Theorem 3：gridworld 有 depth-2 shortcut
+
+一维 gridworld 的状态是位置，输入是向左或向右移动，但不能越界。看似每一步都依赖前一步位置，实际上 Transformer 可以通过 attention 找最近边界，然后只计算边界之后的净位移。
+
+直观公式可以写成：
+
+$$
+\text{position}_t
+\approx
+\text{last boundary}
++
+\sum_{i>\tau_{\text{boundary}}}^{t} \text{move}_i.
+$$
+
+这里 \(\tau_{\text{boundary}}\) 是最近一次碰到边界的位置。Attention 正好适合做这种“从所有历史位置里挑一个关键位置”的操作。
+
+#### Theorem 4：非可解结构的常数深度下界
+
+论文还给出反向结果：对于 non-solvable semiautomata，如果要求 Transformer 深度与 \(T\) 无关、宽度多项式、精度 \(O(\log T)\)，通常不能模拟，除非复杂度理论中的：
+
+$$
+TC^0=NC^1.
+$$
+
+这不是一个普通工程假设，而是复杂度理论中的重大开放问题。主流看法是两者不相等。因此这条结果可理解为：**不是所有 recurrence 都能被常数深度 attention shortcut 无代价地压平。**
+
+### Method
+
+#### 1. 把 recurrence 改写为 transition composition
+
+自动机的关键不是状态标签，而是输入符号诱导的函数：
+
+$$
+\delta_\sigma:Q\to Q.
+$$
+
+状态序列可以看成这些函数的 prefix composition：
+
+$$
+q_t
+=
+(\delta_{\sigma_t}\circ\cdots\circ\delta_{\sigma_1})(q_0).
+$$
+
+Transformer 的 attention 层可以在位置之间移动和聚合信息，MLP 可以在有限集合上实现离散函数插值。因此模型可以先表示 \(\delta_\sigma\)，再并行组合这些 transition functions。
+
+#### 2. 用 self-attention 做并行扫描
+
+在硬注意力近似下，一个 attention head 可以近似从指定位置复制信息：
+
+$$
+\mathrm{Attn}(x)_t
+\approx
+x_{j(t)}.
+$$
+
+当 \(j(t)\) 被设计成分治树上的配对位置时，Transformer 就能做类似 parallel prefix sum 的操作。每一层把可组合的区间长度翻倍：
+
+$$
+1\to 2\to 4\to 8\to\cdots\to T.
+$$
+
+所以深度是：
+
+$$
+O(\log T).
+$$
+
+#### 3. 用 soft attention 做模计数
+
+Parity 是最小的例子。若输入为 bit 序列，状态是前缀和模 2：
+
+$$
+q_t=\left(\sum_{i=1}^{t}\sigma_i\right)\bmod 2.
+$$
+
+Transformer 可以用 attention 聚合前缀中的所有 \(\sigma_i\)，得到类似：
+
+$$
+s_t=\sum_{i=1}^{t}\sigma_i,
+$$
+
+再用 MLP 实现：
+
+$$
+q_t=s_t\bmod 2.
+$$
+
+这就是 shortcut 的典型形态：模型没有一步一步翻转 parity bit，而是先算总数，再取模。
+
+这个解法非常高效，但也埋下了 OOD 风险：如果训练只见过某些计数范围，MLP 的取模函数可能只在这些计数上正确；测试分布一变，未见过的 \(s_t\) 就会出错。
+
+#### 4. 训练目标
+
+实验中模型输入自动机的 input sequence，输出每个位置的状态预测。损失函数是 token-level cross entropy，可写作：
+
+$$
+\mathcal{L}(\theta)
+=
+\frac{1}{T}
+\sum_{t=1}^{T}
+\log\left(\frac{1}{Y_{t,q_t}}\right),
+$$
+
+其中 \(Y_{t,q_t}\) 是模型在位置 \(t\) 给真实状态 \(q_t\) 的概率。作者采用在线采样，序列长度主要设为 \(T=100\)，输入空间 \(|\Sigma|^{100}\) 极大，因此简单背训练集并不能解释高测试准确率。
 
 ### Experiments
 
-#### 1. 标准训练可以找到 shortcut
+#### 1. In-distribution：Transformer 确实能学 shortcut
 
-作者在 19 类半自动机上训练 GPT-2-like Transformer：
+实验涵盖 19 种 semiautomata，包括 cyclic groups、direct products、dihedral groups、quaternion group、Dyck language、gridworld、permutation groups \(A_5,S_5\) 等。
 
-- 输入序列长度固定为 $T=100$；
-- 网络深度 $L$ 从 1 到 16；
-- 训练样本数量不超过 $10^6$；
-- 输入空间规模为 $|\Sigma|^{100}$，无法依靠逐条记忆解决；
-- 评价指标是对未见序列的状态轨迹预测准确率。
+核心发现：
 
-实验显示，所有测试半自动机都可以获得超过 99% 的分布内准确率。更复杂的非阿贝尔群通常需要更深网络，这与理论结构一致。
+- 简单任务如 Dyck、Grid、\(C_2\) 很浅就能学好；
+- 非交换群任务更难；
+- \(A_5,S_5\) 这类非可解结构需要更多层；
+- 最佳 run 可以很好，但训练稳定性不强。
 
-![Figure 3：不同任务和深度下的分布内学习结果](images/figure-03-in-distribution-results.png)
+这说明 Transformer 不是只会记忆局部模式，它确实能学某些全局状态更新规律。但“能在同分布上学会”不等于“学到了人类期待的递归算法”。
 
-#### 2. 注意力图提供了机制层面的线索
+#### 2. Incomplete / indirect supervision：监督信号越稀疏，Transformer 越吃力
 
-在一维 Gridworld 上，部分注意力头呈现出清晰的最近边界检测行为：
+作者进一步研究两类更难设置：
 
-- 某些注意力头近似均匀聚合；
-- 某些注意力头专门定位最近左边界；
-- 某些注意力头专门定位最近右边界。
+1. indirect supervision：观测不是完整状态，而是状态的某个投影；
+2. incomplete supervision：训练时只有部分位置暴露状态标签。
 
-![Figure 4：Gridworld 中的注意力头呈现最近边界检测模式](images/figure-04-gridworld-attention.png)
+![Fig.5: incomplete and indirect supervision](images/figure-05-incomplete-indirect-supervision.png)
 
-这与 Theorem 3 的构造一致，但仍不等于完整的因果机制证明。注意力可视化可以提供线索，却不能单独证明整个网络严格实现了理论算法。
+结果显示，Transformer 在某些 latent-state 设置中仍能达到高准确率，但当标签变稀疏时，RNN/LSTM 更稳。原因可以类比为：RNN 的归纳偏置天然逼近“逐步更新状态”，而 Transformer 的 shortcut 需要从稀疏信号中反推出一套全局并行算法，优化难度更高。
 
-#### 3. 间接监督与稀疏标签
+#### 3. OOD generalization：shortcut 的统计脆弱性
 
-当完整状态 $q_t$ 不可观察，只能看到某个投影：
+Parity 任务最能说明问题。如果训练分布中 \(\Pr[\sigma=1]\) 接近 0.5，模型学到的 prefix count 范围集中；当测试分布让 1 的数量变多或变少时，Transformer 的 shortcut 可能要在未见过的 count 上取模，于是准确率下降。
 
-$$
-\widetilde{q}_t = \phi(q_t),
-$$
+![Fig.6: OOD parity generalization](images/figure-06-ood-parity-generalization.png)
 
-Transformer 在部分设置下仍可获得较好分布内性能。但是，当训练序列中的状态标签越来越稀疏时，LSTM 明显比 Transformer 稳健。
-
-![Figure 5：间接监督与不完整状态序列下的表现](images/figure-05-partial-supervision.png)
-
-#### 4. 分布外泛化：shortcut 的统计脆弱性
-
-以 parity 为例，一个 Transformer shortcut 可能先计算前缀中 1 的数量：
+RNN 的解法是局部递推：
 
 $$
-c_t = \sum_{i=1}^{t} \sigma_i,
+q_t=q_{t-1}\oplus\sigma_t.
 $$
 
-再由 MLP 计算：
+它不关心前面总共有多少个 1，只关心当前 bit 和上一步 parity。因此只要单步规则学对，分布偏移通常不影响。这就是 recurrence bias 的价值。
 
-$$
-q_t = c_t \bmod 2.
-$$
+#### 4. Length generalization：短序列 shortcut 不自动延伸到长序列
 
-这个解在训练分布内完全合理，但当测试数据产生训练期间罕见的计数值时，MLP 可能无法正确外推取模规律。相比之下，RNN 只需重复一个局部规则：
+长度泛化同样暴露问题。训练在长度 40 左右，测试到更长序列时，普通 GPT-style Transformer 明显下降；修改 positional encoding 或使用 scratchpad 可以改善，但最稳的仍是显式递归式方案。
 
-$$
-q_t = q_{t-1} \oplus \sigma_t.
-$$
+![Fig.7: length generalization](images/figure-07-length-generalization.png)
 
-局部规则不会因为累计计数变大而改变。
-
-![Figure 6：parity 任务中的分布外泛化下降](images/figure-06-ood-generalization.png)
-
-#### 5. 长度泛化：更长序列会暴露 shortcut 的盲区
-
-当测试长度超过训练长度时，标准 Transformer 的准确率显著下降。随机平移位置编码、移除位置编码等方法可以改善结果，但并不能彻底修复问题。
-
-![Figure 7：Dyck 与 parity 任务中的长度泛化](images/figure-07-length-generalization.png)
-
-#### 6. Scratchpad + recency bias：用架构偏置换回递归解
-
-作者将中间状态显式写入 scratchpad，并引入 recency bias，使模型更倾向于关注最近状态。这样可以引导 Transformer 学习类似 RNN 的局部迭代规则。
-
-收益：
-
-- 更稳健的分布外泛化；
-- 更稳健的长度泛化。
-
-代价：
-
-- 放弃浅层 shortcut 的并行优势；
-- 推理深度重新接近 $O(T)$。
+这里的关键信息是：Transformer 学到的 shortcut 可能绑定在训练长度、位置编码尺度、计数范围和局部分布上。它不是一个自动可外推的算法，除非训练或结构强迫它采用可外推的实现。
 
 ### Insights
 
-#### 1. 表示能力、优化可达性与泛化能力必须分开讨论
+#### 1. “会做题”不等于“按人类算法做题”
 
-论文最重要的方法论价值不是“Transformer 能做自动机”，而是把三个问题拆开：
+这篇论文给算法推理研究提供了一个重要警告：一个模型在自动机任务上达到高准确率，不意味着它内部执行了人类想象中的逐步算法。它可能学到的是另一种完全有效的并行算法。
 
-| 问题 | 论文中的回答 |
-| --- | --- |
-| 是否存在浅层参数解？ | 对任意半自动机存在 $O(\log T)$ 深度解 |
-| SGD 是否能找到某些浅层解？ | 在合成任务上经常可以 |
-| 找到的解是否稳健外推？ | 未必，OOD 与长度泛化可能较差 |
+这不是坏事。很多真实算法本来就有并行版本。问题在于：如果评测只覆盖同分布，研究者很难区分“稳健算法”与“训练分布上的并行捷径”。
 
-一个模型在训练集和同分布测试集上正确，不足以说明它学到了期望算法。它可能学到一个在局部数据覆盖范围内等价、但在边界条件下失效的替代程序。
+#### 2. Transformer 的优势来自位置共享和全局通信
 
-#### 2. Shortcut 既可能是加速器，也可能是统计陷阱
+理论构造并不是说 MLP 完全做不到这些函数。任意通用逼近器足够大也能表示有限函数。Transformer 的特别之处在于：
 
-shortcut 有两个互补含义：
+- attention 让每个位置能读取历史位置；
+- causal mask 保持自回归方向；
+- 参数在位置上共享，避免每个位置单独学一套规则；
+- soft attention 可以自然实现 prefix aggregation；
+- residual connection 适合实现 cascade product。
 
-- **计算 shortcut**：将 $T$ 步串行运算压缩为 $O(\log T)$ 或 $O(1)$ 层；
-- **统计 shortcut**：依赖训练分布中的偶然规律，而非稳定因果机制。
+换句话说，Transformer 不只是“大 MLP”，它的结构本身就偏向某些浅层并行计算。
 
-本文的关键洞察是：二者可能是同一个解的两面。并行 shortcut 会创造新的中间变量，例如累计计数；这些变量若超出训练覆盖范围，就可能造成脆弱性。
+#### 3. Shortcut 既是能力来源，也是泛化风险
 
-#### 3. 深度下降并不保证总计算成本下降
-
-并行时间与总工作量不是一回事。深度更像关键路径长度，宽度更像同时投入的计算资源。一个常数深度网络若需要指数宽度，可能理论上并行、工程上却不可部署。
-
-因此，评估 shortcut 至少需要同时查看：
+Shortcut learning 在很多机器学习语境里是负面词，指模型利用伪相关。但本文中的 shortcut 更中性：它也可以是数学上正确的高效算法。真正的问题是：
 
 $$
-\text{depth},\quad
-\text{width},\quad
-\text{parameter count},\quad
-\text{precision},\quad
-\text{memory traffic}.
+\text{shortcut on training support}
+\neq
+\text{algorithm valid on all supports}.
 $$
 
-#### 4. 半自动机是研究算法推理的“显微镜”
+如果 shortcut 只在训练分布覆盖的 latent variable 范围内正确，OOD 和 length shift 就会失败。
 
-真实语言任务混合了语义、噪声、世界知识与数据偏差。半自动机任务刻意去掉这些因素，只保留状态跟踪和组合结构。它不能直接替代真实任务，但可以用于检验模型究竟学到了：
+#### 4. RNN 的“慢”是一种归纳偏置
 
-- 局部递归更新；
-- 全局计数；
-- 边界检测；
-- 条件重置；
-- 依赖位置编码的插值规则。
+RNN 看起来笨，因为它必须一步一步走。但这种线性执行方式也强迫模型学局部状态转移：
 
-### Critical Review
+$$
+q_{t-1},\sigma_t\mapsto q_t.
+$$
 
-#### Strengths
+只要局部规则学会，序列长度增加时它仍然可以继续运行。Transformer 的 shortcut 则像预先铺好的高速路，跑得快，但高速路未必延伸到训练地图之外。
 
-- 理论结构统一：将 Transformer、半自动机、变换半群和电路复杂度连接起来。
-- 结论层次清晰：从一般 $O(\log T)$ shortcut，到可解半自动机的 $O(1)$ shortcut，再到 Gridworld 的深度 2 特例。
-- 实验与理论相互照应：注意力图中出现了与理论构造一致的边界检测模式。
-- 没有回避负面结果：论文明确展示 OOD、长度泛化和训练稳定性问题。
+### Critical Reading
 
-#### Limitations
+#### 1. 理论结果主要是 representability，不是 learnability
 
-- 理论上的“存在”不等于工程上的“实用”。部分构造需要较大宽度、特殊激活函数或 max-pooling。
-- shortcut 定义允许模型族 $\{f_T\}$ 随长度 $T$ 改变，因此不能直接推出同一个固定模型可以无限长度外推。
-- 实验主要基于合成自动机，无法单独证明大型语言模型中的复杂推理也采用相同机制。
-- 论文报告的主结果常取 20 次重复训练中的最佳模型，适合回答“是否能找到”，但不足以说明训练稳定性。
-- 注意力模式与理论构造一致，但完整机制解释仍需要更强的因果干预或参数级分析。
+Theorem 1/2/3 说明某些 Transformer 参数存在，但没有完整解释 SGD 为什么能找到它们。实验显示 SGD 经常能找到 shortcut，但这仍是经验事实。真正的优化理论仍然缺失。
 
-### 不知道自己不知道
+#### 2. 常数深度解可能有很大隐藏代价
 
-#### 1. Non-uniformity：长度相关的模型族
+Theorem 2 的深度不依赖 \(T\)，但宽度和参数规模可能对 \(|Q|\) 增长很快。对小型自动机这很漂亮；对真实程序、自然语言语义状态或巨大组合状态空间，是否可用仍是开放问题。
 
-论文研究的是一族模型 $\{f_T\}$。这意味着长度为 100 与长度为 1000 的理论构造可以使用不同参数。读者若将结论理解为“训练一个固定 Transformer 后，它会自动推广到任意长度”，就会越过论文真正证明的边界。
+#### 3. “最佳 20 次 run”会高估稳定性
 
-#### 2. Hard attention 与 soft attention 的差异
+正文 Figure 3 和附录 Figure 8 常报告 20 次 run 中的最大准确率。这个指标适合证明“存在可训练成功的 run”，但不代表普通训练稳定。附录中 median accuracy 的差异也说明训练波动很大。
 
-理论构造中经常需要注意力高度集中到特定位置。真实 softmax attention 通常只能近似 hard attention。随着上下文长度增加，许多极小但非零的权重可能累计成不可忽略误差，因此长度外推还受数值精度和权重尺度影响。
+#### 4. 从有限状态自动机到真实推理还有距离
 
-#### 3. 位置编码不是中性配件
+Semiautomata 是很好的理论试验台，但真实推理可能涉及：
 
-位置编码会改变模型可表示的规则，也会改变长度外推行为。论文显示随机位置平移和移除位置编码可以改善长度泛化，这说明失败未必只来自“算法没学会”，也可能来自坐标系统本身。
+- unbounded memory；
+- compositional variable binding；
+- search；
+- external tools；
+- continuous perception；
+- noisy supervision；
+- multi-step planning。
 
-#### 4. 可观测状态与 next-token prediction 的距离
+因此本文不能直接证明大语言模型“懂算法”，但它确实解释了一类可能机制：浅层并行 shortcut 可以模拟许多有限记忆推理。
 
-完整监督 $(q_1,\ldots,q_T)$ 比只给最终标签或 next-token 标签更强。真实语言建模通常看不到自动机内部状态。监督信号越弱，模型越难恢复稳定的局部递归规则。
+#### 5. OOD 失败不是 Transformer 独有，但这里被机制化了
 
-#### 5. “找到 shortcut”不等于“找到唯一 shortcut”
+很多模型都会 OOD 失败。本文的特别之处是给出一个可解释机制：Transformer 可能先计算某个中间统计量，再在训练范围内用 MLP 拟合离散函数。分布一变，中间统计量落到训练支持之外，函数就外推失败。
 
-同一输入输出函数可能存在多种互不相同的内部算法。理论给出了若干可行构造，实验只能说明训练后的行为与其中某些结构一致，不能说明优化必然选择某一种标准形式。
+### 用户可能“不知道自己不知道”的背景
 
-### 附录图表索引
+#### 1. Automaton、semiautomaton、transducer 的区别
 
-以下图表来自论文附录，保留用于后续复查实验细节和证明构造。
+- automaton 通常关心状态转移和接受/输出；
+- semiautomaton 只关心状态转移；
+- transducer 还会把输入序列映射到输出序列。
 
-#### 完整实验结果
+本文选择 semiautomaton，是为了剥离任务外壳，聚焦“状态递推是否能被 Transformer 压平”。
 
-![Figure 8：不同任务、不同网络深度下的完整结果](images/figure-08-full-task-results.png)
+#### 2. Semigroup 比 group 更一般
 
-![Figure 9：不同任务与深度下的中位准确率](images/figure-09-median-accuracy.png)
+Group 要求有单位元和逆元；semigroup 只要求结合律。函数复合天然满足结合律：
 
-![Figure 10：Gridworld 的 8 个注意力头可视化](images/figure-10-attention-heads.png)
+$$
+f\circ(g\circ h)=(f\circ g)\circ h.
+$$
 
-![Figure 11：间接监督实验的扩展结果](images/figure-11-indirect-supervision.png)
+但很多状态转移不可逆，例如 reset 操作会把多个状态压到同一个状态，所以只能形成 semigroup。这正是自动机理论比单纯群论更贴近程序执行的地方。
 
-![Figure 12：不完整状态序列实验的扩展结果](images/figure-12-incomplete-sequences.png)
+#### 3. Krohn-Rhodes 是自动机理论中的“素因子分解”
 
-![Figure 13：parity 分布外泛化的详细结果](images/figure-13-ood-parity-detail.png)
+Krohn-Rhodes theorem 可以粗略理解为：复杂 finite-state machine 能被分解成更基本的组件，例如 permutation groups 和 reset machines 的级联。它像整数分解：
 
-![Figure 14：scratchpad 与 recency bias 对长度泛化的影响](images/figure-14-length-generalization-detail.png)
+$$
+84=2^2\cdot3\cdot7,
+$$
 
-![Figure 15：位置编码选择对长度泛化的影响](images/figure-15-positional-encoding.png)
+但对象不是整数，而是自动机的状态变换结构。本文借这个理论解释为什么很多 semiautomata 有常数深度 shortcut。
 
-#### 证明构造
+#### 4. \(TC^0\) 与 \(NC^1\) 是“浅层电路能做什么”的语言
 
-![Figure 16：群直积的递归模拟构造](images/figure-16-direct-product.png)
+复杂度类可以理解为不同电路资源下能计算的函数族：
 
-![Figure 17：半直积的递归模拟构造](images/figure-17-semidirect-product.png)
+- \(TC^0\)：常数深度、多项式大小、允许 threshold gates 的电路；
+- \(NC^1\)：对数深度、多项式大小、扇入有限的布尔电路。
 
-![Figure 18：wreath product 的递归模拟构造](images/figure-18-wreath-product.png)
+如果某个任务需要 \(NC^1\) 才能做，而不能被 \(TC^0\) 做，那么常数深度模型就不够。Theorem 4 正是把 non-solvable semiautomata 的模拟和这类深度分离联系起来。
 
-![Table 1：Gridworld 证明使用的符号表](images/table-01-gridworld-notation.png)
+#### 5. Positional encoding 不是无关细节
 
-![Figure 19：四状态 Gridworld 的前缀计算示例](images/figure-19-gridworld-prefix.png)
+Transformer 没有 recurrence，需要位置编码告诉模型 token 在哪里。位置编码不仅是“标号”，还会影响模型能否外推到更长序列。本文的长度泛化实验显示，positional encoding 选择会显著改变 shortcut 的外推行为。
 
-![Figure 20：Gridworld 第二层 MLP 的两类构造](images/figure-20-second-layer-mlp.png)
+#### 6. Scratchpad 是把并行模型引回递归轨道
 
-### 阅读后可追问的问题
+Scratchpad training 让模型显式生成中间状态或推理轨迹。对本文任务而言，它相当于把 hidden state 序列暴露出来，鼓励模型学：
 
-- 哪些真实语言任务可以近似抽象为有限状态或低记忆动力学？
-- 模型是否可以同时保留浅层 shortcut 的并行效率与递归解的长度泛化？
-- 能否通过训练数据设计，让累计计数、边界位置等中间变量得到更充分覆盖？
-- 能否通过因果干预验证注意力头确实承担了理论预测的边界检测功能？
-- 对给定自动机，如何高效找到接近最短深度的 Transformer 构造？
+$$
+q_{t-1}\to q_t
+$$
 
+而不是直接从整段输入跳到输出。它牺牲推理长度上的并行性，换来更强的稳健泛化。
 
+### 可沉淀到 `03_Knowledge` 的原子概念
 
+- [[Semiautomata]]：有限状态系统的转移动力学骨架。
+- [[Shortcut Solution]]：用 \(o(T)\) 深度模拟长度 \(T\) 递归过程的解。
+- [[Transformation Semigroup]]：由输入符号诱导的状态变换在复合下生成的半群。
+- [[Krohn-Rhodes Decomposition]]：把自动机行为分解成基本代数组件的结构定理。
+- [[Parallel Prefix Computation]]：把线性前缀计算压到对数深度的并行算法。
+- [[Algorithmic Generalization]]：模型是否学到可跨长度、跨分布执行的算法规则。
+- [[Length Generalization]]：训练短序列、测试长序列时的外推能力。
+- [[Recurrence Bias]]：RNN 这类结构对局部状态更新规则的归纳偏置。
+
+### Sources
+
+- Bingbin Liu, Jordan T. Ash, Surbhi Goel, Akshay Krishnamurthy, Cyril Zhang. *Transformers Learn Shortcuts to Automata*. arXiv:2210.10749v2, revised 2023-05-02. [https://arxiv.org/abs/2210.10749](https://arxiv.org/abs/2210.10749)
+- 本地 PDF：[Transformers Learn Shortcuts to Automata.pdf](./Transformers%20Learn%20Shortcuts%20to%20Automata.pdf)
+
+## 标签
+
+#paper-note #Transformer #Automata #ShortcutLearning #AlgorithmicReasoning #CircuitComplexity #KrohnRhodes #OODGeneralization
