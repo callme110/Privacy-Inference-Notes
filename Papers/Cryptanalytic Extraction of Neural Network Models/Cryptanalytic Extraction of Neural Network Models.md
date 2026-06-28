@@ -94,8 +94,6 @@ $$
 
 这就是论文最重要的类比。密码分析里，key 是隐藏在黑盒实现中的 secret material；模型提取里，weights 和 biases 也是隐藏在黑盒实现中的 secret material。二者的差别在于，block cipher 被设计成抵抗 chosen-plaintext key recovery，而普通神经网络并没有被设计成抵抗 chosen-input parameter recovery。
 
-可以把这个类比想象成两台售货机。密码学售货机不仅卖饮料，还被专门设计成无论顾客怎样投币、按键，都无法从输出反推出内部钥匙；普通神经网络售货机只被设计成按键后给出预测结果，并没有假设顾客会用一套密码分析式的探针去测内部弹簧位置。
-
 ### 2. Functionally equivalent extraction：不一定逐字节相同，但行为足够相同
 
 论文不是只关心参数文件逐位复制，而是定义了功能等价意义上的模型提取。两个模型在集合 `S` 上如果满足：
