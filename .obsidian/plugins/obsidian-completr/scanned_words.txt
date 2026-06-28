@@ -4508,6 +4508,8 @@ caqssc
 cryptanalysis
 cryptanalytic
 consistent
+contractive
+clustering
 Computer
 Concepts
 ChatGpt
@@ -8784,6 +8786,11 @@ CMBU
 Cox
 Cryptanalytic
 Carlini
+Canales
+Chavez
+CRYPTO
+Cryptography
+Contractive
 Organazation
 OSTEP
 Operating
@@ -16810,6 +16817,8 @@ a`X
 aV`jd
 agcH
 attacker
+availability
+almost
 Design
 Data
 Database
@@ -25067,6 +25076,7 @@ Tca
 TvE
 Takayuki
 Todo
+Threat
 Hardware
 HPC
 Hulu
@@ -29031,6 +29041,9 @@ Hvx
 HpxV
 HkZf
 HUUA
+Hambitzer
+Henr
+Hidden
 Software
 Structure
 System
@@ -33499,6 +33512,11 @@ SXU
 SRxe
 SpRzTCO
 SiLU
+Saab
+Satpute
+Submitted
+Sign
+Symbolic
 Interface
 Isomorphic
 Inference
@@ -37491,6 +37509,7 @@ IFmU
 ItlZCUk
 IBE
 Ijf
+Ilya
 And
 Algorithm
 Analysis
@@ -41713,6 +41732,7 @@ ALICE
 ADP
 Ayzf
 Akira
+Assessing
 java
 jyy
 js
@@ -49965,6 +49985,10 @@ pqrf
 pSi
 persistent
 principal
+plaintexts
+preimage
+parameterized
+peel
 Understanding
 USTC
 Unix
@@ -65809,6 +65833,7 @@ oF`V
 oghB
 oBfX
 oAS
+outgoing
 net
 nn
 need
@@ -69662,6 +69687,9 @@ ngrL
 ndFM
 nID
 nonlinear
+neighbourhood
+neighbourhoods
+neighborhoods
 Network
 Nvidia
 NCNN
@@ -73465,6 +73493,9 @@ NejH
 NWBu
 NNvNH
 NaY
+Nitin
+Neuron
+Nicholas
 Programming
 Parallel
 PLAM
@@ -77739,6 +77770,7 @@ PKJ
 PGnx
 PIabJ
 Persistent
+PReLU
 games
 go
 google
@@ -81779,6 +81811,8 @@ gridworld
 gates
 gVX
 gOT
+guez
+geometric
 MLsystem
 MLsys
 Mlsys
@@ -85877,6 +85911,10 @@ MOD
 Manuscript
 Mxo
 Miura
+Mart
+Mironov
+Matthew
+MILP
 JYY
 Jim
 Jina
@@ -89769,6 +89807,8 @@ JfaDwP
 JVNc
 JsHe
 JeL
+Jorge
+Jagielski
 workload
 wfn
 work
@@ -93744,6 +93784,9 @@ wqP
 wwwM
 wwY
 whUL
+wiggle
+witness
+witnesses
 lab
 lightning
 latex
@@ -97821,6 +97864,7 @@ lIl
 lxzRy
 lZrGKq
 layerwise
+lesson
 GPU
 GPT
 Google
@@ -106081,6 +106125,9 @@ sul
 sIM
 sZnq
 scree
+soe
+secure
+schematic
 torch
 training
 tune
@@ -114298,6 +114345,8 @@ f`G
 fPdY
 fZB
 fiB
+finite
+fixable
 model
 mass
 mindspore
@@ -118505,6 +118554,7 @@ mTMk
 mUMo
 minimum
 mathrm
+membership
 blog
 batchsize
 batch
@@ -122632,6 +122682,8 @@ bÜ
 bwSK
 bKe
 bNYu
+borderline
+biases
 is
 inference
 in
@@ -126781,6 +126833,8 @@ iHU
 inactive
 inactivation
 inconsistent
+inversion
+incoming
 you
 yX
 yYX
@@ -138088,6 +138142,9 @@ FyX
 FAVG
 Fashion
 FMNIST
+Francisco
+FindCriticalPoints
+Functionally
 Quant
 Qa
 QR
@@ -146061,6 +146118,7 @@ hallucinate
 hypernetwork
 hlr
 hc`c
+hyperplanes
 up
 ucb
 universal
@@ -149940,6 +149998,7 @@ uDM
 uUlb
 ungh
 unified
+unification
 kernel
 kickstart
 kdd
@@ -153793,6 +153852,7 @@ kedki
 kWbM
 kkKOr
 knYdx
+kdeep
 BladeDISC
 Bagua
 Blog
@@ -161982,6 +162042,8 @@ rGdz
 rUaB
 rwi
 recovered
+randomization
+recoveries
 xv
 xpy
 xlb
@@ -169711,6 +169773,7 @@ ERSK
 E`v
 EWe
 EUROCRYPT
+Expansive
 Raft
 Rocksdb
 Reader
@@ -173926,6 +173989,9 @@ Ruw
 Rqkw
 RrY
 RsH
+Rodr
+ReLUs
+Revised
 WiscKey
 Web
 WIFI
@@ -177989,6 +178055,7 @@ WGR
 Wyn
 WtOil
 WqO
+Wiggle
 Values
 VP
 Vz
@@ -185561,6 +185628,7 @@ questionnaires
 qfkn
 qDRU
 qQg
+quez
 zsm
 zn
 zO
@@ -193267,6 +193335,9 @@ extraction
 evaluator
 embeddings
 equivalence
+equality
+expansive
+efficacy
 vue
 vision
 variance
@@ -201363,6 +201434,8 @@ dfQTt
 discovered
 discrepancy
 deficiency
+doi
+decomposition
 Youtube
 YOLO
 Your

@@ -11,13 +11,52 @@
             "id": "c1998e0d4c4e4929",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Polynomial Time Cryptanalytic Extraction of Neural Network Models/Polynomial Time Cryptanalytic Extraction of Neural Network Models.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "Polynomial Time Cryptanalytic Extraction of Neural Network Models"
+            }
+          },
+          {
+            "id": "cd83a37c23facd89",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Papers/Cryptanalytic Extraction of Neural Network Models/Cryptanalytic Extraction of Neural Network Models.md",
+                "mode": "preview",
+                "source": false,
+                "backlinks": true,
+                "backlinkOpts": {
+                  "collapseAll": false,
+                  "extraContext": false,
+                  "sortOrder": "alphabetical",
+                  "showSearch": false,
+                  "searchQuery": "",
+                  "backlinkCollapsed": false,
+                  "unlinkedCollapsed": true
+                }
+              },
+              "icon": "lucide-file",
+              "title": "Cryptanalytic Extraction of Neural Network Models"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -100,6 +139,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Papers/Cryptanalytic Extraction of Neural Network Models/Cryptanalytic Extraction of Neural Network Models.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -109,7 +149,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "反向链接"
+              "title": "Cryptanalytic Extraction of Neural Network Models 的反向链接列表"
             }
           },
           {
@@ -133,12 +173,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Papers/Cryptanalytic Extraction of Neural Network Models/Cryptanalytic Extraction of Neural Network Models.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "大纲"
+              "title": "Cryptanalytic Extraction of Neural Network Models 的大纲"
             }
           },
           {
@@ -170,11 +211,13 @@
       "obsidian-git:Open Git source control": false,
       "obsidian-excalidraw-plugin:Create new drawing": false,
       "obsidian-kanban:Create new board": false,
-      "periodic-notes:Open today": false
+      "periodic-notes:Open today": false,
+      "obsidian-file-cleaner:Clean files": false
     }
   },
-  "active": "c1998e0d4c4e4929",
+  "active": "cd83a37c23facd89",
   "lastOpenFiles": [
+    "Papers/Polynomial Time Cryptanalytic Extraction of Neural Network Models/Polynomial Time Cryptanalytic Extraction of Neural Network Models.md",
     "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
     "未命名 1.md",
     "未命名.md",
