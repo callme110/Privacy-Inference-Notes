@@ -4,83 +4,20 @@
     "type": "split",
     "children": [
       {
-        "id": "2b192417cd510e59",
+        "id": "2f487c4bcbec821b",
         "type": "tabs",
         "children": [
           {
-            "id": "4bd51496a920ffcc",
+            "id": "c1998e0d4c4e4929",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
-                "mode": "preview",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity"
-            }
-          },
-          {
-            "id": "759f6fc1ecc10962",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "Transformers Learn Shortcuts to Automata"
-            }
-          },
-          {
-            "id": "2796b08db0da5710",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
-                "mode": "source",
-                "source": false,
-                "backlinks": true,
-                "backlinkOpts": {
-                  "collapseAll": false,
-                  "extraContext": false,
-                  "sortOrder": "alphabetical",
-                  "showSearch": false,
-                  "searchQuery": "",
-                  "backlinkCollapsed": false,
-                  "unlinkedCollapsed": true
-                }
-              },
-              "icon": "lucide-file",
-              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial"
+              "title": "新标签页"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -112,7 +49,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#topic",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -134,16 +71,6 @@
             }
           },
           {
-            "id": "efde9d0225302fc8",
-            "type": "leaf",
-            "state": {
-              "type": "vertical-tabs",
-              "state": {},
-              "icon": "gallery-vertical",
-              "title": "Vertical tabs"
-            }
-          },
-          {
             "id": "062028ae22fe952f",
             "type": "leaf",
             "state": {
@@ -153,8 +80,7 @@
               "title": "Tag Folder"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "horizontal",
@@ -174,7 +100,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -184,7 +109,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -208,13 +133,12 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial 的大纲"
+              "title": "大纲"
             }
           },
           {
@@ -249,8 +173,11 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "2796b08db0da5710",
+  "active": "c1998e0d4c4e4929",
   "lastOpenFiles": [
+    "Papers/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial/Is the Hard-Label Cryptanalytic Model Extraction Really Polynomial.md",
+    "未命名 1.md",
+    "未命名.md",
     "Papers/Transformers Learn Shortcuts to Automata/Transformers Learn Shortcuts to Automata.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.md",
     "Papers/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity/Neural Leakage-based Cryptanalysis of LowMC with Linear Complexity.pdf",
